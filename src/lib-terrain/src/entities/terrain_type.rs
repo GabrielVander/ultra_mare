@@ -5,4 +5,5 @@ pub enum TerrainType {
     Forest,
     Jungle,
     Plains,
+    Sea,
 }
