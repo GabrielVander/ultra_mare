@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
-pub enum Terrain {
+pub enum TerrainType {
     Mountain,
     Hills,
     Forest,
