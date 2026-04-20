@@ -1,5 +1,5 @@
 [workspace]
-members = ["src/app-ascii"]
+members = ["src/app-ascii", "src/lib-terrain"]
 resolver = "3"
 
 [workspace.dependencies]
