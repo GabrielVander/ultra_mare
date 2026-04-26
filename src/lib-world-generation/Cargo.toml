@@ -5,3 +5,6 @@ edition = "2024"
 
 [dependencies]
 lib-terrain = { path = "../lib-terrain" }
+ordered-float = "5.3.0"
+
+[dev-dependencies]
