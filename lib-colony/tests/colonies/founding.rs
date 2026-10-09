@@ -11,7 +11,7 @@ fn should_found_a_colony_where_the_colonist_stands() {
     let mut expedition = Expedition::land(&SHORE.tiles());
     let mut colonies = Colonies::default();
 
-    let founded = colonies.found(&mut expedition, &SHORE);
+    let founded: Result<TilePosition, FoundColonyError> = colonies.found(&mut expedition, &SHORE);
 
     assert_eq!(Ok(TilePosition { x: 0, y: 0 }), founded);
     let sites: Vec<TilePosition> = colonies.iter().map(Colony::position).collect();
@@ -43,10 +43,10 @@ fn should_refuse_to_found_a_colony_while_the_colonist_is_aboard() {
     let shore = TerrainGrid(&[".~"]);
     let mut expedition = Expedition::land(&shore.tiles());
     expedition.move_colonist(Direction::East, &shore);
-    let expedition_before = expedition.clone();
+    let expedition_before: Expedition = expedition.clone();
     let mut colonies = Colonies::default();
 
-    let founded = colonies.found(&mut expedition, &shore);
+    let founded: Result<TilePosition, FoundColonyError> = colonies.found(&mut expedition, &shore);
 
     assert_eq!(Err(FoundColonyError::NoColonistAshore), founded);
     assert_eq!(0, colonies.iter().count());
@@ -59,7 +59,7 @@ fn should_refuse_to_found_a_second_colony_once_the_colonist_settled() {
     let mut colonies = Colonies::default();
     colonies.found(&mut expedition, &SHORE).unwrap();
 
-    let founded = colonies.found(&mut expedition, &SHORE);
+    let founded: Result<TilePosition, FoundColonyError> = colonies.found(&mut expedition, &SHORE);
 
     assert_eq!(Err(FoundColonyError::NoColonistAshore), founded);
     assert_eq!(1, colonies.iter().count());
@@ -77,9 +77,10 @@ fn should_refuse_to_found_a_colony_on_or_next_to_another() {
                     &CHECKERED_COAST,
                 )
                 .unwrap();
-            let mut expedition = colonist_at(site);
+            let mut expedition: Expedition = colonist_at(site);
 
-            let founded = colonies.found(&mut expedition, &CHECKERED_COAST);
+            let founded: Result<TilePosition, FoundColonyError> =
+                colonies.found(&mut expedition, &CHECKERED_COAST);
 
             assert_eq!(Err(FoundColonyError::TooCloseToColony), founded, "{site:?}");
             assert_eq!(1, colonies.iter().count(), "{site:?}");
@@ -106,7 +107,8 @@ fn should_found_a_colony_two_tiles_away_from_another() {
             )
             .unwrap();
 
-        let founded = colonies.found(&mut colonist_at(site), &CHECKERED_COAST);
+        let founded: Result<TilePosition, FoundColonyError> =
+            colonies.found(&mut colonist_at(site), &CHECKERED_COAST);
 
         assert_eq!(Ok(site), founded, "{site:?}");
         assert_eq!(2, colonies.iter().count(), "{site:?}");
@@ -117,10 +119,10 @@ fn should_found_a_colony_two_tiles_away_from_another() {
 fn should_refuse_to_found_a_colony_inland() {
     let inland = TerrainGrid(&["...", "...", "..~"]);
     let mut expedition = Expedition::land(&inland.tiles());
-    let expedition_before = expedition.clone();
+    let expedition_before: Expedition = expedition.clone();
     let mut colonies = Colonies::default();
 
-    let founded = colonies.found(&mut expedition, &inland);
+    let founded: Result<TilePosition, FoundColonyError> = colonies.found(&mut expedition, &inland);
 
     assert_eq!(Err(FoundColonyError::Landlocked), founded);
     assert_eq!(0, colonies.iter().count());
@@ -133,7 +135,7 @@ fn should_found_a_colony_with_the_sea_only_diagonally_next_to_it() {
     let mut expedition = Expedition::land(&cove.tiles());
     let mut colonies = Colonies::default();
 
-    let founded = colonies.found(&mut expedition, &cove);
+    let founded: Result<TilePosition, FoundColonyError> = colonies.found(&mut expedition, &cove);
 
     assert_eq!(Ok(TilePosition { x: 0, y: 0 }), founded);
 }

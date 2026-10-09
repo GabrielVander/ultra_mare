@@ -20,7 +20,7 @@ impl Colonies {
         expedition: &mut Expedition,
         map: &impl MapTerrain,
     ) -> Result<TilePosition, FoundColonyError> {
-        let site = expedition
+        let site: TilePosition = expedition
             .colonist_ashore()
             .map(Unit::position)
             .ok_or(FoundColonyError::NoColonistAshore)?;
@@ -41,7 +41,7 @@ impl Colonies {
 
     fn is_crowded(&self, site: TilePosition) -> bool {
         self.colonies.iter().any(|colony| {
-            let position = colony.position();
+            let position: TilePosition = colony.position();
             position.x.abs_diff(site.x) <= 1 && position.y.abs_diff(site.y) <= 1
         })
     }
