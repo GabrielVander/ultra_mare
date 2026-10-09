@@ -9,6 +9,7 @@ use crate::{
 pub struct Unit {
     unit_type: UnitType,
     position: TilePosition,
+    pub(crate) aboard: Vec<Unit>,
 }
 
 impl Unit {
@@ -23,6 +24,7 @@ impl Unit {
         Some(Self {
             unit_type,
             position,
+            aboard: Vec::new(),
         })
     }
 
@@ -40,7 +42,7 @@ impl Unit {
         if !self.unit_type.can_enter(terrain) {
             return Err(MoveError::Impassable(terrain));
         }
-        self.position = destination;
+        self.relocate(destination);
         Ok(())
     }
 
@@ -50,5 +52,12 @@ impl Unit {
 
     pub fn position(&self) -> TilePosition {
         self.position
+    }
+
+    pub(crate) fn relocate(&mut self, position: TilePosition) {
+        self.position = position;
+        self.aboard
+            .iter_mut()
+            .for_each(|unit| unit.relocate(position));
     }
 }

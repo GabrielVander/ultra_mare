@@ -13,4 +13,23 @@ impl UnitType {
             UnitType::Caravel => terrain.is_water(),
         }
     }
+
+    pub(crate) fn is_carrier(&self) -> bool {
+        self.space() > 0
+    }
+
+    /// How many units it can carry.
+    pub(crate) fn space(&self) -> usize {
+        match self {
+            UnitType::Colonist => 0,
+            UnitType::Caravel => 2,
+        }
+    }
+
+    pub(crate) fn can_be_carried(&self) -> bool {
+        match self {
+            UnitType::Colonist => true,
+            UnitType::Caravel => false,
+        }
+    }
 }
