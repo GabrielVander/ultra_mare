@@ -9,4 +9,4 @@ pub use entities::{
     terrain_generation_weights::{TerrainGenerationWeights, TerrainGenerationWeightsError},
     world_map::WorldMap,
 };
-pub use noise::noise_source::NoiseSource;
+pub use noise::{noise_source::NoiseSource, value_noise::ValueNoise};
