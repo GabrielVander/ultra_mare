@@ -10,3 +10,6 @@ lib-terrain = { path = "../lib-terrain" }
 lib-unit = { path = "../lib-unit" }
 lib-world-generation = { path = "../lib-world-generation" }
 rand = "0.10.1"
+
+[lints]
+workspace = true

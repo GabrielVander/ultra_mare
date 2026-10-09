@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 lib-terrain = { path = "../lib-terrain" }
 lib-unit = { path = "../lib-unit" }
+
+[lints]
+workspace = true
