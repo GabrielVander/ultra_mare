@@ -3113,6 +3113,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib-colony"
+version = "0.1.0"
+dependencies = [
+ "lib-terrain",
+ "lib-unit",
+]
+
+[[package]]
 name = "lib-terrain"
 version = "0.1.0"
 

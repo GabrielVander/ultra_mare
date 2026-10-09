@@ -1,5 +1,5 @@
 [workspace]
-members = ["app-ascii", "lib-terrain", "lib-unit", "lib-world-generation"]
+members = ["app-ascii", "lib-colony", "lib-terrain", "lib-unit", "lib-world-generation"]
 resolver = "3"
 
 # Debug info is dropped because the code is not debugged; it dominated link times.
