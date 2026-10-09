@@ -30,8 +30,13 @@ impl ActiveUnit {
 
     /// Has the colonist found a colony where it stands. It joins the colony, so the caravel
     /// takes the orders from then on.
-    pub fn order_found_colony(&mut self, expedition: &mut Expedition, colonies: &mut Colonies) {
-        if *self == ActiveUnit::Colonist && colonies.found(expedition).is_ok() {
+    pub fn order_found_colony(
+        &mut self,
+        expedition: &mut Expedition,
+        colonies: &mut Colonies,
+        map: &impl MapTerrain,
+    ) {
+        if *self == ActiveUnit::Colonist && colonies.found(expedition, map).is_ok() {
             *self = ActiveUnit::Caravel;
         }
     }

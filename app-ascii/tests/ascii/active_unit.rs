@@ -49,7 +49,7 @@ fn should_found_a_colony_with_the_active_colonist_and_hand_over_to_the_caravel()
     let mut colonies = Colonies::default();
     let mut active = ActiveUnit::Colonist;
 
-    active.order_found_colony(&mut expedition, &mut colonies);
+    active.order_found_colony(&mut expedition, &mut colonies, &Shore);
 
     let sites: Vec<TilePosition> = colonies.iter().map(|colony| colony.position()).collect();
     assert_eq!(vec![TilePosition { x: 1, y: 0 }], sites);
@@ -62,7 +62,7 @@ fn should_found_no_colony_when_the_caravel_is_active() {
     let mut colonies = Colonies::default();
     let mut active = ActiveUnit::Caravel;
 
-    active.order_found_colony(&mut expedition, &mut colonies);
+    active.order_found_colony(&mut expedition, &mut colonies, &Shore);
 
     assert_eq!(0, colonies.iter().count());
     assert_eq!(
@@ -80,8 +80,24 @@ fn should_keep_the_colonist_active_when_it_cannot_found_a_colony() {
     let mut colonies = Colonies::default();
     let mut active = ActiveUnit::Colonist;
 
-    active.order_found_colony(&mut expedition, &mut colonies);
+    active.order_found_colony(&mut expedition, &mut colonies, &Shore);
 
     assert_eq!(0, colonies.iter().count());
+    assert_eq!(ActiveUnit::Colonist, active);
+}
+
+#[test]
+fn should_keep_the_colonist_active_when_it_stands_inland() {
+    let mut expedition = Expedition::land(&Shore.tiles());
+    let mut colonies = Colonies::default();
+    let mut active = ActiveUnit::Colonist;
+
+    active.order_found_colony(&mut expedition, &mut colonies, &Shore);
+
+    assert_eq!(0, colonies.iter().count());
+    assert_eq!(
+        Some(TilePosition { x: 0, y: 0 }),
+        expedition.colonist_position()
+    );
     assert_eq!(ActiveUnit::Colonist, active);
 }

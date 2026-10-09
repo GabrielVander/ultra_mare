@@ -10,7 +10,7 @@ fn should_mark_each_colony_on_its_tile() {
     let mut expedition = Expedition::land(&Shore.tiles());
     expedition.move_colonist(Direction::East, &Shore);
     let mut colonies = Colonies::default();
-    colonies.found(&mut expedition).unwrap();
+    colonies.found(&mut expedition, &Shore).unwrap();
 
     let markers = present_colonies(&colonies);
 

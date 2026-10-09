@@ -282,6 +282,7 @@ fn move_unit(
 
 fn found_colony(
     keys: Res<ButtonInput<KeyCode>>,
+    world: Res<World>,
     mut units: ResMut<Units>,
     mut settlements: ResMut<Settlements>,
 ) {
@@ -289,7 +290,7 @@ fn found_colony(
         return;
     }
     let Units { expedition, active } = units.as_mut();
-    active.order_found_colony(expedition, &mut settlements.0);
+    active.order_found_colony(expedition, &mut settlements.0, &WorldTerrain::new(&world.0));
 }
 
 fn follow_active_unit(units: Res<Units>, mut navigation: ResMut<Navigation>) {

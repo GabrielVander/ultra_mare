@@ -2,4 +2,5 @@
 pub enum FoundColonyError {
     NoColonistAshore,
     TooCloseToColony,
+    Landlocked,
 }
