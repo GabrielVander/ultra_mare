@@ -56,6 +56,26 @@ fn should_stay_at_the_top_left_when_the_whole_map_fits() {
     assert_eq!(MapPosition { x: 0, y: 0 }, viewport.origin());
 }
 
+#[test]
+fn should_pull_back_inside_the_map_when_resized() {
+    let mut viewport = viewport_at(MapPosition { x: 15, y: 6 });
+
+    viewport.resize(8, 6);
+
+    assert_eq!(MapPosition { x: 12, y: 4 }, viewport.origin());
+}
+
+#[test]
+fn should_pan_within_its_new_size_after_a_resize() {
+    let mut viewport = Viewport::new(map_size(20, 10), 5, 4);
+    viewport.resize(18, 9);
+
+    (0..5).for_each(|_| viewport.pan(PanDirection::Right));
+    (0..5).for_each(|_| viewport.pan(PanDirection::Down));
+
+    assert_eq!(MapPosition { x: 2, y: 1 }, viewport.origin());
+}
+
 fn viewport_at(origin: MapPosition) -> Viewport {
     let mut viewport = Viewport::new(map_size(20, 10), 5, 4);
     (0..origin.x).for_each(|_| viewport.pan(PanDirection::Right));

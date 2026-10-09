@@ -34,14 +34,13 @@ impl Viewport {
 
     pub fn pan(&mut self, direction: PanDirection) {
         let MapPosition { x, y } = self.origin;
-        let farthest = self.farthest_origin();
-        self.origin = match direction {
+        let panned = match direction {
             PanDirection::Left => MapPosition {
                 x: x.saturating_sub(1),
                 y,
             },
             PanDirection::Right => MapPosition {
-                x: (x + 1).min(farthest.x),
+                x: x.saturating_add(1),
                 y,
             },
             PanDirection::Up => MapPosition {
@@ -50,9 +49,24 @@ impl Viewport {
             },
             PanDirection::Down => MapPosition {
                 x,
-                y: (y + 1).min(farthest.y),
+                y: y.saturating_add(1),
             },
         };
+        self.origin = self.clamped(panned);
+    }
+
+    pub fn resize(&mut self, columns: u32, rows: u32) {
+        self.columns = columns;
+        self.rows = rows;
+        self.origin = self.clamped(self.origin);
+    }
+
+    fn clamped(&self, origin: MapPosition) -> MapPosition {
+        let farthest = self.farthest_origin();
+        MapPosition {
+            x: origin.x.min(farthest.x),
+            y: origin.y.min(farthest.y),
+        }
     }
 
     fn farthest_origin(&self) -> MapPosition {
