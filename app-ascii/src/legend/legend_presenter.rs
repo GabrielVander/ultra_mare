@@ -30,7 +30,8 @@ pub fn present_legend() -> LegendViewModel {
         terrains: TerrainType::ALL.into_iter().map(terrain_entry).collect(),
         units: vec![unit_entry(UnitType::FreeColonist)],
         controls: vec![
-            control_hint("Arrows/WASD", "Move"),
+            control_hint("WASD", "Move colonist"),
+            control_hint("Arrows", "Pan view"),
             control_hint("R", "New map"),
         ],
     }

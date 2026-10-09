@@ -48,5 +48,12 @@ fn should_list_the_controls() {
         .iter()
         .map(|control| (control.keys.as_str(), control.action.as_str()))
         .collect();
-    assert_eq!(vec![("Arrows/WASD", "Move"), ("R", "New map")], controls);
+    assert_eq!(
+        vec![
+            ("WASD", "Move colonist"),
+            ("Arrows", "Pan view"),
+            ("R", "New map"),
+        ],
+        controls
+    );
 }
