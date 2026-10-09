@@ -1,3 +1,8 @@
+#![expect(
+    clippy::needless_pass_by_value,
+    reason = "Bevy hands system parameters over by value"
+)]
+
 use std::time::Duration;
 
 use app_ascii::{
