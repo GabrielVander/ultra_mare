@@ -15,11 +15,10 @@ impl UnitType {
     }
 
     pub(crate) fn is_carrier(&self) -> bool {
-        self.space() > 0
+        self.capacity() > 0
     }
 
-    /// How many units it can carry.
-    pub(crate) fn space(&self) -> usize {
+    pub(crate) fn capacity(&self) -> usize {
         match self {
             UnitType::Colonist => 0,
             UnitType::Caravel => 2,

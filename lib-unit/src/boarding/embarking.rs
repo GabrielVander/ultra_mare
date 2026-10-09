@@ -39,6 +39,6 @@ impl Unit {
     }
 
     fn has_space_left(&self) -> bool {
-        self.aboard.len() < self.unit_type().space()
+        self.aboard.len() < self.unit_type().capacity()
     }
 }
