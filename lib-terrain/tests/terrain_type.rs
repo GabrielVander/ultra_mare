@@ -16,3 +16,13 @@ fn should_list_every_terrain_type_exactly_once() {
     assert_eq!(expected.len(), TerrainType::ALL.len());
     assert_eq!(expected, HashSet::from(TerrainType::ALL));
 }
+
+#[test]
+fn should_treat_only_sea_as_water() {
+    let water: Vec<TerrainType> = TerrainType::ALL
+        .into_iter()
+        .filter(|terrain| terrain.is_water())
+        .collect();
+
+    assert_eq!(vec![TerrainType::Sea], water);
+}
