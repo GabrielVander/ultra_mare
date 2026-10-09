@@ -181,7 +181,7 @@ fn populate_world(commands: &mut Commands, world: WorldMap) {
     spawn_tiles(commands, &world);
     let colonist = Unit::land(UnitType::Colonist, WorldTerrain::new(&world).tiles());
     if let Some(unit) = &colonist {
-        commands.spawn(colonist_glyph(unit));
+        commands.spawn((ColonistGlyph, unit_on_map(unit)));
     }
     commands.insert_resource(Colonist(colonist));
     commands.insert_resource(World(world));
@@ -208,12 +208,11 @@ fn tile_glyph(position: MapPosition, glyph: Glyph) -> impl Bundle {
 }
 
 /// A coloured square hiding the terrain glyph beneath, with the unit's glyph on top.
-fn colonist_glyph(unit: &Unit) -> impl Bundle {
+fn unit_on_map(unit: &Unit) -> impl Bundle {
     let glyph = unit_glyph(unit.unit_type());
     let (x, y) = LAYOUT.tile_translation(map_position(unit.position()));
     (
         MapGlyph,
-        ColonistGlyph,
         Sprite::from_color(
             UNIT_BACKGROUND,
             Vec2::new(LAYOUT.tile_width, LAYOUT.tile_height),
