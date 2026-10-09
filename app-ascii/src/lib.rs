@@ -1,6 +1,7 @@
 mod legend;
 mod map_view;
 mod navigation;
+mod world;
 
 pub use legend::legend_presenter::{ControlHint, LegendEntry, LegendViewModel, present_legend};
 pub use map_view::{
@@ -12,3 +13,4 @@ pub use navigation::{
     screen_layout::ScreenLayout,
     viewport::{PanDirection, Viewport},
 };
+pub use world::world_settings::generate_world;
