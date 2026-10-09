@@ -1,92 +1,220 @@
-use bevy::prelude::*;
+use std::time::Duration;
 
-const MAP_WIDTH: i32 = 100;
-const MAP_HEIGHT: i32 = 80;
-const TILE_SIZE: f32 = 16.0;
+use app_ascii::{
+    ControlHint, Glyph, KeyRepeat, LegendEntry, PanDirection, Rgb, ScreenLayout, Viewport,
+    generate_world, present_legend, present_map,
+};
+use bevy::{prelude::*, window::PrimaryWindow};
+use lib_world_generation::{MapPosition, WorldMap};
+
+const LAYOUT: ScreenLayout = ScreenLayout {
+    tile_width: 14.0,
+    tile_height: 18.0,
+    legend_width: 220.0,
+};
+const GLYPH_FONT_SIZE: f32 = 16.0;
+const LEGEND_FONT_SIZE: f32 = 16.0;
+const LEGEND_BACKGROUND: Color = Color::srgb(0.08, 0.08, 0.1);
+const LEGEND_TEXT: Color = Color::srgb(0.85, 0.85, 0.85);
+const KEY_REPEAT_DELAY: Duration = Duration::from_millis(250);
+const KEY_REPEAT_INTERVAL: Duration = Duration::from_millis(40);
+
+const PAN_KEYS: [(PanDirection, [KeyCode; 2]); 4] = [
+    (PanDirection::Left, [KeyCode::ArrowLeft, KeyCode::KeyA]),
+    (PanDirection::Right, [KeyCode::ArrowRight, KeyCode::KeyD]),
+    (PanDirection::Up, [KeyCode::ArrowUp, KeyCode::KeyW]),
+    (PanDirection::Down, [KeyCode::ArrowDown, KeyCode::KeyS]),
+];
+const REGENERATE_KEY: KeyCode = KeyCode::KeyR;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
-        .add_systems(Startup, setup_world)
-        .add_systems(Update, move_camera)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "Ultra Mare".to_string(),
+                ..default()
+            }),
+            ..default()
+        }))
+        .add_systems(Startup, (spawn_camera, spawn_legend, spawn_world))
+        .add_systems(
+            Update,
+            (
+                regenerate_world,
+                fit_viewport_to_window,
+                pan_viewport,
+                aim_camera,
+            )
+                .chain(),
+        )
         .run();
 }
 
-#[derive(Component)]
-struct MainCamera {
-    panning_speed: f32,
+#[derive(Resource)]
+struct Navigation {
+    viewport: Viewport,
+    pan_repeats: Vec<(PanDirection, KeyRepeat)>,
 }
 
-fn setup_world(mut commands: Commands) {
-    let right_edge_x = (MAP_WIDTH / 2) as f32 * TILE_SIZE;
-    let start_x = rand::random_range((right_edge_x * 0.8)..right_edge_x);
-    let start_y = rand::random_range(
-        -(MAP_HEIGHT as f32 * TILE_SIZE / 4.0)..(MAP_HEIGHT as f32 * TILE_SIZE / 4.0),
-    );
+#[derive(Component)]
+struct TileGlyph;
 
-    commands.spawn((
-        Camera2d,
-        MainCamera {
-            panning_speed: 25.0,
-        },
-        Transform::from_xyz(start_x, start_y, 10.0),
-    ));
+fn spawn_camera(mut commands: Commands) {
+    commands.spawn(Camera2d);
+}
 
-    for y in -MAP_HEIGHT / 2..MAP_HEIGHT / 2 {
-        for x in -MAP_WIDTH / 2..MAP_WIDTH / 2 {
-            let normalized_x = (x as f32 + (MAP_WIDTH / 2) as f32) / MAP_WIDTH as f32;
+fn spawn_legend(mut commands: Commands) {
+    let legend = present_legend();
 
-            let land_probability = (1.2 - (normalized_x * 1.5)).clamp(0.0, 1.0);
-            let is_land = rand::random_bool(land_probability as f64);
+    commands
+        .spawn((
+            Node {
+                position_type: PositionType::Absolute,
+                right: Val::Px(0.0),
+                top: Val::Px(0.0),
+                width: Val::Px(LAYOUT.legend_width),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(4.0),
+                padding: UiRect::all(Val::Px(12.0)),
+                ..default()
+            },
+            BackgroundColor(LEGEND_BACKGROUND),
+        ))
+        .with_children(|panel| {
+            panel.spawn(legend_text("Terrain", LEGEND_TEXT));
+            legend.terrains.iter().for_each(|entry| {
+                spawn_terrain_entry(panel, entry);
+            });
+            panel.spawn(legend_text("\nControls", LEGEND_TEXT));
+            legend.controls.iter().for_each(|control| {
+                spawn_control_hint(panel, control);
+            });
+        });
+}
 
-            let (character, color) = if is_land {
-                let terrain_type: f32 = rand::random::<f32>();
-                if terrain_type < 0.1 {
-                    ("#", Color::srgb(0.6, 0.6, 0.6)) // Mountain
-                } else if terrain_type < 0.3 {
-                    ("^", Color::srgb(0.6, 0.5, 0.3)) // Hills
-                } else if terrain_type < 0.6 {
-                    ("T", Color::srgb(0.1, 0.6, 0.2)) // Forest
-                } else if terrain_type < 0.8 {
-                    ("@", Color::srgb(0.0, 0.4, 0.1)) // Jungle
-                } else {
-                    (",", Color::srgb(0.5, 0.8, 0.3)) // Plains
-                }
-            } else {
-                (".", Color::srgb(0.2, 0.4, 0.8)) // Sea
-            };
+fn spawn_terrain_entry(panel: &mut ChildSpawnerCommands, entry: &LegendEntry) {
+    panel
+        .spawn(legend_text(
+            &format!("{}  ", entry.glyph.symbol),
+            color_of(entry.glyph.color),
+        ))
+        .with_child(legend_span(&entry.label));
+}
 
-            commands.spawn((
-                Text2d::new(character),
-                TextFont {
-                    font_size: TILE_SIZE,
-                    ..default()
-                },
-                TextColor(color),
-                Transform::from_xyz(x as f32 * TILE_SIZE, y as f32 * TILE_SIZE, 0.0),
-            ));
+fn spawn_control_hint(panel: &mut ChildSpawnerCommands, control: &ControlHint) {
+    panel
+        .spawn(legend_text(&format!("{}  ", control.keys), LEGEND_TEXT))
+        .with_child(legend_span(&control.action));
+}
+
+fn legend_text(text: &str, color: Color) -> impl Bundle {
+    (
+        Text::new(text),
+        TextFont::from_font_size(LEGEND_FONT_SIZE),
+        TextColor(color),
+    )
+}
+
+fn legend_span(text: &str) -> impl Bundle {
+    (
+        TextSpan::new(text),
+        TextFont::from_font_size(LEGEND_FONT_SIZE),
+        TextColor(LEGEND_TEXT),
+    )
+}
+
+fn spawn_world(mut commands: Commands) {
+    let world = generate_world(rand::random());
+    spawn_tiles(&mut commands, &world);
+    commands.insert_resource(Navigation {
+        viewport: Viewport::new(world.size(), 0, 0),
+        pan_repeats: PAN_KEYS
+            .iter()
+            .map(|(direction, _)| (*direction, new_key_repeat()))
+            .collect(),
+    });
+}
+
+fn new_key_repeat() -> KeyRepeat {
+    KeyRepeat::new(KEY_REPEAT_DELAY, KEY_REPEAT_INTERVAL)
+        .expect("the key repeat interval is not zero")
+}
+
+fn spawn_tiles(commands: &mut Commands, world: &WorldMap) {
+    let view_model = present_map(world);
+    for (y, row) in (0..).zip(&view_model.rows) {
+        for (x, glyph) in (0..).zip(row) {
+            commands.spawn(tile_glyph(MapPosition { x, y }, *glyph));
         }
     }
 }
 
-fn move_camera(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut main_camera_query: Query<(&mut Transform, &MainCamera)>,
-    time: Res<Time>,
-) {
-    let (mut camera_transform, main_camera) = main_camera_query.single_mut().unwrap();
-    let speed = main_camera.panning_speed * time.delta_secs() * TILE_SIZE;
+fn tile_glyph(position: MapPosition, glyph: Glyph) -> impl Bundle {
+    let (x, y) = LAYOUT.tile_translation(position);
+    (
+        TileGlyph,
+        Text2d::new(glyph.symbol.to_string()),
+        TextFont::from_font_size(GLYPH_FONT_SIZE),
+        TextColor(color_of(glyph.color)),
+        Transform::from_xyz(x, y, 0.0),
+    )
+}
 
-    if keyboard_input.pressed(KeyCode::ArrowLeft) {
-        camera_transform.translation.x -= speed;
+fn color_of(rgb: Rgb) -> Color {
+    Color::srgb_u8(rgb.red, rgb.green, rgb.blue)
+}
+
+fn regenerate_world(
+    mut commands: Commands,
+    keys: Res<ButtonInput<KeyCode>>,
+    tiles: Query<Entity, With<TileGlyph>>,
+) {
+    if !keys.just_pressed(REGENERATE_KEY) {
+        return;
     }
-    if keyboard_input.pressed(KeyCode::ArrowRight) {
-        camera_transform.translation.x += speed;
+    tiles
+        .iter()
+        .for_each(|tile| commands.entity(tile).despawn());
+    spawn_tiles(&mut commands, &generate_world(rand::random()));
+}
+
+fn fit_viewport_to_window(
+    window: Single<&Window, With<PrimaryWindow>>,
+    mut navigation: ResMut<Navigation>,
+) {
+    let (columns, rows) = LAYOUT.viewport_size(window.width(), window.height());
+    navigation.viewport.resize(columns, rows);
+}
+
+fn pan_viewport(
+    keys: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
+    mut navigation: ResMut<Navigation>,
+) {
+    let Navigation {
+        viewport,
+        pan_repeats,
+    } = navigation.as_mut();
+
+    for ((direction, repeat), (_, bound_keys)) in pan_repeats.iter_mut().zip(PAN_KEYS) {
+        // A tap released within the same frame is no longer pressed, yet must still move.
+        let held = keys.any_pressed(bound_keys) || keys.any_just_pressed(bound_keys);
+        repeat.tick(held, time.delta());
+        (0..repeat.steps_due()).for_each(|_| viewport.pan(*direction));
     }
-    if keyboard_input.pressed(KeyCode::ArrowUp) {
-        camera_transform.translation.y += speed;
-    }
-    if keyboard_input.pressed(KeyCode::ArrowDown) {
-        camera_transform.translation.y -= speed;
-    }
+}
+
+fn aim_camera(
+    window: Single<&Window, With<PrimaryWindow>>,
+    navigation: Res<Navigation>,
+    mut camera: Single<&mut Transform, With<Camera2d>>,
+) {
+    let (x, y) = LAYOUT.camera_translation(
+        navigation.viewport.origin(),
+        window.width(),
+        window.height(),
+    );
+    camera.translation.x = x;
+    camera.translation.y = y;
 }
