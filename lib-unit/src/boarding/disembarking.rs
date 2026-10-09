@@ -6,6 +6,10 @@ use crate::{
 
 impl Unit {
     /// Lands one of the units aboard on the neighbouring tile in `direction`.
+    ///
+    /// # Errors
+    ///
+    /// Fails when nobody is aboard or when the unit cannot step onto that tile.
     pub fn disembark(
         &mut self,
         direction: Direction,

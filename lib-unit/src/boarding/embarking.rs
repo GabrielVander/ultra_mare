@@ -4,6 +4,11 @@ use crate::{
 
 impl Unit {
     /// Boards `carrier`, which from then on holds this unit. A refused unit is handed back.
+    ///
+    /// # Errors
+    ///
+    /// Fails when `carrier` carries no units, when this unit cannot be carried, when the two
+    /// are not adjacent or when `carrier` is full.
     pub fn embark(mut self, carrier: &mut Unit) -> Result<(), (EmbarkError, Unit)> {
         if let Some(reason) = self.embark_refusal(carrier) {
             return Err((reason, self));

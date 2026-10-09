@@ -10,6 +10,11 @@ pub struct Colonies {
 impl Colonies {
     /// Founds a colony on the tile of the expedition's colonist, who joins it and leaves the map.
     /// For now colonies stand only on the coast.
+    ///
+    /// # Errors
+    ///
+    /// Fails when no colonist is ashore, when the site borders another colony or when it
+    /// lies inland.
     pub fn found(
         &mut self,
         expedition: &mut Expedition,

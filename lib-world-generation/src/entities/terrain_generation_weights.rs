@@ -26,6 +26,10 @@ struct TerrainBand {
 }
 
 impl TerrainGenerationWeights {
+    /// # Errors
+    ///
+    /// Fails when a terrain appears twice, when a weight is negative or not finite, or when
+    /// the weights do not sum to one.
     pub fn new(weights: &[(TerrainType, f32)]) -> Result<Self, TerrainGenerationWeightsError> {
         TerrainGenerationWeights::ensure_no_duplicate_terrain(weights)?;
         TerrainGenerationWeights::ensure_every_weight_is_valid(weights)?;

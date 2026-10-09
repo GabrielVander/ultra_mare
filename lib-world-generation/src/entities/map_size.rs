@@ -10,6 +10,9 @@ pub struct MapSize {
 }
 
 impl MapSize {
+    /// # Errors
+    ///
+    /// Fails when either dimension is zero.
     pub fn new(width: u32, height: u32) -> Result<Self, MapSizeError> {
         if width == 0 || height == 0 {
             return Err(MapSizeError::Empty);

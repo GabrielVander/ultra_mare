@@ -29,6 +29,10 @@ impl Unit {
     }
 
     /// Steps onto the neighbouring tile, as often as asked: units have no movement limit yet.
+    ///
+    /// # Errors
+    ///
+    /// Fails when the tile lies off the map or the unit cannot enter its terrain.
     pub fn move_toward(
         &mut self,
         direction: Direction,

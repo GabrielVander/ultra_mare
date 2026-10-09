@@ -7,6 +7,9 @@ pub enum NoiseValueError {
 pub struct NoiseValue(f32);
 
 impl NoiseValue {
+    /// # Errors
+    ///
+    /// Fails when `value` lies outside `0.0..=1.0`.
     pub fn new(value: f32) -> Result<Self, NoiseValueError> {
         if !(0.0..=1.0).contains(&value) {
             return Err(NoiseValueError::OutOfRange);

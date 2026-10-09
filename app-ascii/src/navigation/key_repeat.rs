@@ -16,6 +16,9 @@ pub struct KeyRepeat {
 }
 
 impl KeyRepeat {
+    /// # Errors
+    ///
+    /// Fails when `interval` is zero.
     pub fn new(initial_delay: Duration, interval: Duration) -> Result<Self, KeyRepeatError> {
         if interval.is_zero() {
             return Err(KeyRepeatError::ZeroInterval);
