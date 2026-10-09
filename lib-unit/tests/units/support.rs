@@ -18,8 +18,8 @@ impl TerrainGrid {
 
 impl MapTerrain for TerrainGrid {
     fn terrain_at(&self, position: TilePosition) -> Option<TerrainType> {
-        let row = self.0.get(position.y as usize)?;
-        let symbol = row.chars().nth(position.x as usize)?;
+        let row: &str = self.0.get(position.y as usize)?;
+        let symbol: char = row.chars().nth(position.x as usize)?;
         Some(match symbol {
             '~' => TerrainType::Sea,
             _ => TerrainType::Plains,

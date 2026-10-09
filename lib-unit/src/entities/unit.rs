@@ -22,7 +22,7 @@ impl Unit {
         unit_type: UnitType,
         tiles: impl IntoIterator<Item = (TilePosition, TerrainType)>,
     ) -> Option<Self> {
-        let (position, _) = tiles
+        let (position, _): (TilePosition, TerrainType) = tiles
             .into_iter()
             .find(|(_, terrain)| unit_type.can_enter(*terrain))?;
         Some(Self {
@@ -42,11 +42,11 @@ impl Unit {
         direction: Direction,
         map: &impl MapTerrain,
     ) -> Result<(), MoveError> {
-        let destination = self
+        let destination: TilePosition = self
             .position
             .neighbour(direction)
             .ok_or(MoveError::OffMap)?;
-        let terrain = map.terrain_at(destination).ok_or(MoveError::OffMap)?;
+        let terrain: TerrainType = map.terrain_at(destination).ok_or(MoveError::OffMap)?;
         if !self.unit_type.can_enter(terrain) {
             return Err(MoveError::Impassable(terrain));
         }

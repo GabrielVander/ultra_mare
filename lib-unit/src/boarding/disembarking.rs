@@ -15,7 +15,7 @@ impl Unit {
         direction: Direction,
         map: &impl MapTerrain,
     ) -> Result<Unit, DisembarkError> {
-        let mut unit = self
+        let mut unit: Unit = self
             .aboard
             .first()
             .cloned()

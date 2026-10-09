@@ -109,7 +109,7 @@ fn should_settle_the_colonist_ashore_off_the_map() {
     let shore = TerrainGrid(&["..~"]);
     let mut expedition = Expedition::land(&shore.tiles());
 
-    let settler = expedition.settle_colonist().unwrap();
+    let settler: Unit = expedition.settle_colonist().unwrap();
 
     assert_eq!(UnitType::Colonist, settler.unit_type());
     assert_eq!(TilePosition { x: 0, y: 0 }, settler.position());
@@ -123,7 +123,7 @@ fn should_not_settle_the_colonist_while_it_is_aboard() {
     let mut expedition = Expedition::land(&shore.tiles());
     expedition.move_colonist(Direction::East, &shore);
 
-    let settler = expedition.settle_colonist();
+    let settler: Option<Unit> = expedition.settle_colonist();
 
     assert_eq!(None, settler);
     assert_eq!(
@@ -136,7 +136,7 @@ fn should_not_settle_the_colonist_while_it_is_aboard() {
 fn should_tell_the_colonist_ashore_only_while_it_is_not_aboard() {
     let shore = TerrainGrid(&[".~"]);
     let mut expedition = Expedition::land(&shore.tiles());
-    let ashore = expedition.colonist_ashore().map(Unit::position);
+    let ashore: Option<TilePosition> = expedition.colonist_ashore().map(Unit::position);
 
     expedition.move_colonist(Direction::East, &shore);
 
