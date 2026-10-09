@@ -64,7 +64,7 @@ fn unit_entry(unit_type: UnitType) -> LegendEntry {
 
 fn unit_name(unit_type: UnitType) -> &'static str {
     match unit_type {
-        UnitType::Colonist => "Free Colonist",
+        UnitType::Colonist => "Colonist",
     }
 }
 
