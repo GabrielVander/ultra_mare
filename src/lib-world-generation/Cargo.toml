@@ -5,5 +5,3 @@ edition = "2024"
 
 [dependencies]
 lib-terrain = { path = "../lib-terrain" }
-
-[dev-dependencies]

@@ -1,5 +1,3 @@
 [workspace]
 members = ["src/app-ascii", "src/lib-terrain", "src/lib-world-generation"]
 resolver = "3"
-
-[workspace.dependencies]
