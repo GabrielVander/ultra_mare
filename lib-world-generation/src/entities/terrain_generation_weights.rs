@@ -36,6 +36,7 @@ impl TerrainGenerationWeights {
         })
     }
 
+    #[must_use]
     pub fn terrain_for(&self, noise: NoiseValue) -> TerrainType {
         self.bands
             .iter()

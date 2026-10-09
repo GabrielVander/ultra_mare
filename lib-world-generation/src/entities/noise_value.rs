@@ -15,6 +15,7 @@ impl NoiseValue {
         Ok(Self(value))
     }
 
+    #[must_use]
     pub fn value(&self) -> f32 {
         self.0
     }

@@ -18,10 +18,12 @@ impl MapSize {
         Ok(Self { width, height })
     }
 
+    #[must_use]
     pub fn width(&self) -> u32 {
         self.width
     }
 
+    #[must_use]
     pub fn height(&self) -> u32 {
         self.height
     }

@@ -13,6 +13,7 @@ pub struct UnitMarker {
     pub is_active: bool,
 }
 
+#[must_use]
 pub fn present_units(expedition: &Expedition, active: ActiveUnit) -> Vec<UnitMarker> {
     let active_position = active.position(expedition);
     expedition

@@ -7,6 +7,7 @@ pub enum UnitType {
 }
 
 impl UnitType {
+    #[must_use]
     pub fn can_enter(&self, terrain: TerrainType) -> bool {
         match self {
             UnitType::Colonist => !terrain.is_water(),

@@ -8,6 +8,7 @@ pub struct WorldTerrain<'a> {
 }
 
 impl<'a> WorldTerrain<'a> {
+    #[must_use]
     pub fn new(map: &'a WorldMap) -> Self {
         Self { map }
     }
@@ -29,6 +30,7 @@ impl MapTerrain for WorldTerrain<'_> {
     }
 }
 
+#[must_use]
 pub fn map_position(position: TilePosition) -> MapPosition {
     MapPosition {
         x: position.x,

@@ -15,6 +15,7 @@ pub struct Expedition {
 
 impl Expedition {
     /// Puts the colonist on the first land tile and the caravel on the first sea tile.
+    #[must_use]
     pub fn land(tiles: &[(TilePosition, TerrainType)]) -> Self {
         Self {
             colonist: Unit::land(UnitType::Colonist, tiles.iter().copied()),
@@ -40,6 +41,7 @@ impl Expedition {
     }
 
     /// The colonist standing on land, `None` while it is aboard the caravel.
+    #[must_use]
     pub fn colonist_ashore(&self) -> Option<&Unit> {
         self.colonist.as_ref()
     }

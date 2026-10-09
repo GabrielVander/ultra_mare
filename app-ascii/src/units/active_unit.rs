@@ -8,6 +8,7 @@ pub enum ActiveUnit {
 }
 
 impl ActiveUnit {
+    #[must_use]
     pub fn switched(self) -> Self {
         match self {
             ActiveUnit::Colonist => ActiveUnit::Caravel,
@@ -40,6 +41,7 @@ impl ActiveUnit {
         }
     }
 
+    #[must_use]
     pub fn position(self, expedition: &Expedition) -> Option<TilePosition> {
         match self {
             ActiveUnit::Colonist => expedition.colonist_position(),

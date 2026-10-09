@@ -10,6 +10,7 @@ pub struct ScreenLayout {
 
 impl ScreenLayout {
     /// How many whole tiles fit in the window beside the legend, as `(columns, rows)`.
+    #[must_use]
     pub fn viewport_size(&self, window_width: f32, window_height: f32) -> (u32, u32) {
         let map_area_width = window_width - self.legend_width;
         (
@@ -19,6 +20,7 @@ impl ScreenLayout {
     }
 
     /// The centre of a tile. Rows run downwards while Bevy's y axis points up.
+    #[must_use]
     pub fn tile_translation(&self, position: MapPosition) -> (f32, f32) {
         let (left, top) = self.tile_top_left(position);
         (left + self.tile_width / 2.0, top - self.tile_height / 2.0)
@@ -26,6 +28,7 @@ impl ScreenLayout {
 
     /// Where the camera must look for the viewport's origin tile to sit in the
     /// window's top-left corner.
+    #[must_use]
     pub fn camera_translation(
         &self,
         origin: MapPosition,

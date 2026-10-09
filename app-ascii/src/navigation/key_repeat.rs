@@ -41,6 +41,7 @@ impl KeyRepeat {
         };
     }
 
+    #[must_use]
     pub fn steps_due(&self) -> u32 {
         self.steps_due
     }

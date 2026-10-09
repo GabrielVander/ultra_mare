@@ -13,6 +13,7 @@ pub struct Glyph {
     pub color: Rgb,
 }
 
+#[must_use]
 pub fn glyph_for(terrain: TerrainType) -> Glyph {
     match terrain {
         TerrainType::Mountain => glyph('^', 170, 170, 170),

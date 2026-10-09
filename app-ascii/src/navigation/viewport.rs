@@ -19,6 +19,7 @@ pub struct Viewport {
 }
 
 impl Viewport {
+    #[must_use]
     pub fn new(map_size: MapSize, columns: u32, rows: u32) -> Self {
         Self {
             map_size,
@@ -28,6 +29,7 @@ impl Viewport {
         }
     }
 
+    #[must_use]
     pub fn origin(&self) -> MapPosition {
         self.origin
     }

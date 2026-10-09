@@ -2,6 +2,7 @@ use lib_unit::UnitType;
 
 use crate::map_view::terrain_glyph::{Glyph, Rgb};
 
+#[must_use]
 pub fn unit_glyph(unit_type: UnitType) -> Glyph {
     match unit_type {
         UnitType::Colonist => Glyph {

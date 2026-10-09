@@ -18,6 +18,7 @@ impl TerrainType {
         TerrainType::Sea,
     ];
 
+    #[must_use]
     pub fn is_water(&self) -> bool {
         matches!(self, TerrainType::Sea)
     }

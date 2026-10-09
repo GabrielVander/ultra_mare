@@ -1,5 +1,6 @@
 use crate::map_view::terrain_glyph::{Glyph, Rgb};
 
+#[must_use]
 pub fn colony_glyph() -> Glyph {
     Glyph {
         symbol: '#',

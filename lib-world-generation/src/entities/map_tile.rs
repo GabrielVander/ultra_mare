@@ -10,6 +10,7 @@ pub struct MapTile {
 }
 
 impl MapTile {
+    #[must_use]
     pub fn generate_from_noise_value(
         weights: &TerrainGenerationWeights,
         noise: NoiseValue,
@@ -19,6 +20,7 @@ impl MapTile {
         }
     }
 
+    #[must_use]
     pub fn terrain_type(&self) -> TerrainType {
         self.terrain_type
     }

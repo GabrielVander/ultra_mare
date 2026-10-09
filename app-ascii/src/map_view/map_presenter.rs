@@ -8,6 +8,7 @@ pub struct MapViewModel {
     pub rows: Vec<Vec<Glyph>>,
 }
 
+#[must_use]
 pub fn present_map(map: &WorldMap) -> MapViewModel {
     let size = map.size();
     let rows = (0..size.height())

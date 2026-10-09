@@ -15,6 +15,7 @@ pub struct ValueNoise {
 }
 
 impl ValueNoise {
+    #[must_use]
     pub fn new(seed: u64, feature_size: NonZeroU32) -> Self {
         Self { seed, feature_size }
     }

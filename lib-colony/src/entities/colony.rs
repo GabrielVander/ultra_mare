@@ -15,6 +15,7 @@ impl Colony {
         }
     }
 
+    #[must_use]
     pub fn position(&self) -> TilePosition {
         self.position
     }

@@ -25,10 +25,12 @@ impl WorldMap {
         Self { size, tiles }
     }
 
+    #[must_use]
     pub fn size(&self) -> MapSize {
         self.size
     }
 
+    #[must_use]
     pub fn tile_at(&self, position: MapPosition) -> Option<&MapTile> {
         if !self.contains(position) {
             return None;

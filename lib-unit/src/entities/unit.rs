@@ -46,10 +46,12 @@ impl Unit {
         Ok(())
     }
 
+    #[must_use]
     pub fn unit_type(&self) -> UnitType {
         self.unit_type
     }
 
+    #[must_use]
     pub fn position(&self) -> TilePosition {
         self.position
     }
