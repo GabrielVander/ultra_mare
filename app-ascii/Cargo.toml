@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 bevy = "0.18.1"
+lib-terrain = { path = "../lib-terrain" }
 rand = "0.10.1"
