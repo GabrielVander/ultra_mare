@@ -7,6 +7,9 @@ use std::{
 use lib_terrain::entities::terrain_type::TerrainType;
 use ordered_float::OrderedFloat;
 
+// Weights like 0.35 + 0.45 + 0.2 add up to 1.0 on paper but not in `f32`.
+const WEIGHT_SUM_TOLERANCE: f32 = 1e-6;
+
 #[derive(Debug, PartialEq)]
 pub(crate) enum TerrainGenerationWeightsError {
     WeightsDoNotSumToOne,
@@ -28,7 +31,7 @@ impl TerrainGenerationWeights {
             TerrainGenerationWeights::build_min_heap_with_given_weights(weights);
 
         let sum: f32 = TerrainGenerationWeights::get_min_heap_sum(&min_heap);
-        if sum != 1.0 {
+        if (sum - 1.0).abs() > WEIGHT_SUM_TOLERANCE {
             return Err(TerrainGenerationWeightsError::WeightsDoNotSumToOne);
         }
 
@@ -160,6 +163,22 @@ mod test {
         weight_inputs.into_iter().for_each(|weights| {
             assert_eq!(Ok(()), TerrainGenerationWeights::new(&weights).map(|_| ()))
         });
+    }
+
+    #[test]
+    fn should_succeed_when_weights_add_up_to_100_percent_except_for_float_rounding() {
+        let weights = Vec::from([
+            (TerrainType::Mountain, 0.35),
+            (TerrainType::Hills, 0.45),
+            (TerrainType::Forest, 0.2),
+        ]);
+        let rounded_sum: f32 = weights.iter().map(|(_, weight)| weight).sum();
+        assert_ne!(
+            1.0, rounded_sum,
+            "precondition: the sum must be off by rounding"
+        );
+
+        assert_eq!(Ok(()), TerrainGenerationWeights::new(&weights).map(|_| ()))
     }
 
     #[test]
