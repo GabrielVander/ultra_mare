@@ -8,14 +8,14 @@ use crate::entities::noise_value::NoiseValue;
 const WEIGHT_SUM_TOLERANCE: f32 = 1e-6;
 
 #[derive(Debug, PartialEq)]
-pub(crate) enum TerrainGenerationWeightsError {
+pub enum TerrainGenerationWeightsError {
     WeightsDoNotSumToOne,
     DuplicateTerrain(TerrainType),
     InvalidWeight(TerrainType),
 }
 
 #[derive(Debug)]
-pub(crate) struct TerrainGenerationWeights {
+pub struct TerrainGenerationWeights {
     bands: Vec<TerrainBand>,
 }
 

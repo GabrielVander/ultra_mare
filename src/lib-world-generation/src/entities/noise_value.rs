@@ -1,10 +1,10 @@
 #[derive(Debug, PartialEq)]
-pub(crate) enum NoiseValueError {
+pub enum NoiseValueError {
     OutOfRange,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct NoiseValue(f32);
+pub struct NoiseValue(f32);
 
 impl NoiseValue {
     pub fn new(value: f32) -> Result<Self, NoiseValueError> {

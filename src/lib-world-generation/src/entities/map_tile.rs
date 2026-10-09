@@ -5,12 +5,15 @@ use crate::entities::{
 };
 
 #[derive(Debug, PartialEq)]
-struct MapTile {
+pub struct MapTile {
     terrain_type: TerrainType,
 }
 
 impl MapTile {
-    fn generate_from_noise_value(weights: &TerrainGenerationWeights, noise: NoiseValue) -> Self {
+    pub fn generate_from_noise_value(
+        weights: &TerrainGenerationWeights,
+        noise: NoiseValue,
+    ) -> Self {
         Self {
             terrain_type: weights.terrain_for(noise),
         }
