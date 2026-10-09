@@ -7,8 +7,9 @@ use std::time::Duration;
 
 use app_ascii::{
     ActiveUnit, ColonyMarker, ControlHint, Glyph, KeyRepeat, LegendEntry, LegendViewModel,
-    MapViewModel, PanDirection, Rgb, ScreenLayout, UnitMarker, Viewport, WorldTerrain,
-    generate_world, map_position, present_colonies, present_legend, present_map, present_units,
+    MapViewModel, PanDirection, ProductionLine, Rgb, ScreenLayout, TileInfoViewModel, UnitMarker,
+    Viewport, WorldTerrain, generate_world, map_position, present_colonies, present_legend,
+    present_map, present_tile_info, present_units,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
 use lib_colony::Colonies;
@@ -66,6 +67,7 @@ fn main() {
                 move_unit,
                 found_colony,
                 follow_active_unit,
+                draw_tile_info,
                 pan_viewport,
                 draw_colonies,
                 draw_units,
@@ -103,6 +105,9 @@ struct UnitOrders {
 struct MapGlyph;
 
 #[derive(Component)]
+struct TileInfoPanel;
+
+#[derive(Component)]
 struct UnitGlyph;
 
 #[derive(Component)]
@@ -131,7 +136,17 @@ fn spawn_legend(mut commands: Commands) {
             BackgroundColor(LEGEND_BACKGROUND),
         ))
         .with_children(|panel| {
-            panel.spawn(legend_text("Terrain", LEGEND_TEXT));
+            panel.spawn(legend_text("Tile", LEGEND_TEXT));
+            panel.spawn((
+                TileInfoPanel,
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    row_gap: Val::Px(4.0),
+                    ..default()
+                },
+            ));
+
+            panel.spawn(legend_text("\nTerrain", LEGEND_TEXT));
             legend.terrains.iter().for_each(|entry| {
                 spawn_legend_entry(panel, entry);
             });
@@ -326,6 +341,40 @@ fn follow_active_unit(units: Res<Units>, mut navigation: ResMut<Navigation>) {
     if let Some(position) = units.active.position(&units.expedition) {
         navigation.viewport.keep_in_view(map_position(position));
     }
+}
+
+fn draw_tile_info(
+    mut commands: Commands,
+    units: Res<Units>,
+    world: Res<World>,
+    panel: Single<Entity, With<TileInfoPanel>>,
+) {
+    if !units.is_changed() && !world.is_changed() {
+        return;
+    }
+
+    commands.entity(*panel).despawn_related::<Children>();
+
+    let tile_info: Option<TileInfoViewModel> = present_tile_info(
+        &units.expedition,
+        units.active,
+        &WorldTerrain::new(&world.0),
+    );
+
+    if let Some(tile_info) = tile_info {
+        commands.entity(*panel).with_children(|section| {
+            spawn_legend_entry(section, &tile_info.terrain);
+            tile_info.production.iter().for_each(|line| {
+                spawn_production_line(section, line);
+            });
+        });
+    }
+}
+
+fn spawn_production_line(section: &mut ChildSpawnerCommands, line: &ProductionLine) {
+    section
+        .spawn(legend_text(&format!("{:>2}  ", line.amount), LEGEND_TEXT))
+        .with_child(legend_span(&line.goods));
 }
 
 fn pan_viewport(
