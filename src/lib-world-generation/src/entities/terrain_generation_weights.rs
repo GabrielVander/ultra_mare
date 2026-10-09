@@ -11,6 +11,7 @@ use ordered_float::OrderedFloat;
 pub(crate) enum TerrainGenerationWeightsError {
     WeightsDoNotSumToOne,
     DuplicateTerrain(TerrainType),
+    InvalidWeight(TerrainType),
 }
 
 #[derive(Debug)]
@@ -21,6 +22,7 @@ pub(crate) struct TerrainGenerationWeights {
 impl TerrainGenerationWeights {
     pub fn new(weights: &[(TerrainType, f32)]) -> Result<Self, TerrainGenerationWeightsError> {
         TerrainGenerationWeights::ensure_no_duplicate_terrain(weights)?;
+        TerrainGenerationWeights::ensure_every_weight_is_valid(weights)?;
 
         let min_heap: BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>> =
             TerrainGenerationWeights::build_min_heap_with_given_weights(weights);
@@ -52,6 +54,22 @@ impl TerrainGenerationWeights {
             Some((terrain, _)) => Err(TerrainGenerationWeightsError::DuplicateTerrain(*terrain)),
             None => Ok(()),
         }
+    }
+
+    fn ensure_every_weight_is_valid(
+        weights: &[(TerrainType, f32)],
+    ) -> Result<(), TerrainGenerationWeightsError> {
+        match weights
+            .iter()
+            .find(|(_, weight)| !TerrainGenerationWeights::is_valid_weight(*weight))
+        {
+            Some((terrain, _)) => Err(TerrainGenerationWeightsError::InvalidWeight(*terrain)),
+            None => Ok(()),
+        }
+    }
+
+    fn is_valid_weight(weight: f32) -> bool {
+        weight.is_finite() && weight >= 0.0
     }
 
     fn build_min_heap_with_given_weights(
@@ -186,6 +204,44 @@ mod test {
                 assert_eq!(
                     Err(TerrainGenerationWeightsError::DuplicateTerrain(
                         duplicated_terrain
+                    )),
+                    TerrainGenerationWeights::new(&weights).map(|_| ()),
+                    "{:?}",
+                    weights
+                )
+            });
+    }
+
+    #[test]
+    fn should_fail_when_given_an_invalid_weight() {
+        let weight_inputs: Vec<(Vec<(TerrainType, f32)>, TerrainType)> = vec![
+            (
+                Vec::from([(TerrainType::Mountain, 1.5), (TerrainType::Hills, -0.5)]),
+                TerrainType::Hills,
+            ),
+            (
+                Vec::from([(TerrainType::Sea, -0.1), (TerrainType::Plains, 0.5)]),
+                TerrainType::Sea,
+            ),
+            (
+                Vec::from([(TerrainType::Forest, f32::NAN), (TerrainType::Jungle, 1.0)]),
+                TerrainType::Forest,
+            ),
+            (
+                Vec::from([
+                    (TerrainType::Forest, f32::INFINITY),
+                    (TerrainType::Jungle, f32::NEG_INFINITY),
+                ]),
+                TerrainType::Forest,
+            ),
+        ];
+
+        weight_inputs
+            .into_iter()
+            .for_each(|(weights, invalid_terrain)| {
+                assert_eq!(
+                    Err(TerrainGenerationWeightsError::InvalidWeight(
+                        invalid_terrain
                     )),
                     TerrainGenerationWeights::new(&weights).map(|_| ()),
                     "{:?}",
