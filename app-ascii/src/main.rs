@@ -1,11 +1,12 @@
 use std::time::Duration;
 
 use app_ascii::{
-    ControlHint, Glyph, KeyRepeat, LegendEntry, PanDirection, Rgb, ScreenLayout, Viewport,
-    WorldTerrain, generate_world, map_position, present_legend, present_map, unit_glyph,
+    ActiveUnit, ControlHint, Glyph, KeyRepeat, LegendEntry, PanDirection, Rgb, ScreenLayout,
+    UnitMarker, Viewport, WorldTerrain, generate_world, map_position, present_legend, present_map,
+    present_units,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
-use lib_unit::{Direction, Unit, UnitType};
+use lib_unit::{Direction, Expedition};
 use lib_world_generation::{MapPosition, WorldMap};
 
 const LAYOUT: ScreenLayout = ScreenLayout {
@@ -17,7 +18,8 @@ const GLYPH_FONT_SIZE: f32 = 16.0;
 const LEGEND_FONT_SIZE: f32 = 16.0;
 const LEGEND_BACKGROUND: Color = Color::srgb(0.08, 0.08, 0.1);
 const LEGEND_TEXT: Color = Color::srgb(0.85, 0.85, 0.85);
-const UNIT_BACKGROUND: Color = Color::srgb(0.55, 0.12, 0.12);
+const ACTIVE_UNIT_BACKGROUND: Color = Color::srgb(0.55, 0.12, 0.12);
+const IDLE_UNIT_BACKGROUND: Color = Color::srgb(0.25, 0.25, 0.3);
 const KEY_REPEAT_DELAY: Duration = Duration::from_millis(250);
 const KEY_REPEAT_INTERVAL: Duration = Duration::from_millis(40);
 
@@ -33,6 +35,7 @@ const MOVE_KEYS: [(Direction, KeyCode); 4] = [
     (Direction::South, KeyCode::KeyS),
     (Direction::East, KeyCode::KeyD),
 ];
+const SWITCH_UNIT_KEY: KeyCode = KeyCode::Tab;
 const REGENERATE_KEY: KeyCode = KeyCode::KeyR;
 
 fn main() {
@@ -50,10 +53,11 @@ fn main() {
             (
                 regenerate_world,
                 fit_viewport_to_window,
-                move_colonist,
-                follow_colonist,
+                switch_unit,
+                move_unit,
+                follow_active_unit,
                 pan_viewport,
-                place_colonist,
+                draw_units,
                 aim_camera,
             )
                 .chain(),
@@ -70,12 +74,14 @@ struct Navigation {
 #[derive(Resource)]
 struct World(WorldMap);
 
-/// `None` when the map has no land to put the colonist on.
 #[derive(Resource)]
-struct Colonist(Option<Unit>);
+struct Units {
+    expedition: Expedition,
+    active: ActiveUnit,
+}
 
 #[derive(Resource)]
-struct ColonistOrders {
+struct UnitOrders {
     move_repeats: Vec<(Direction, KeyRepeat)>,
 }
 
@@ -83,7 +89,7 @@ struct ColonistOrders {
 struct MapGlyph;
 
 #[derive(Component)]
-struct ColonistGlyph;
+struct UnitGlyph;
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera2d);
@@ -163,7 +169,7 @@ fn spawn_world(mut commands: Commands) {
             .map(|(direction, _)| (*direction, new_key_repeat()))
             .collect(),
     });
-    commands.insert_resource(ColonistOrders {
+    commands.insert_resource(UnitOrders {
         move_repeats: MOVE_KEYS
             .iter()
             .map(|(direction, _)| (*direction, new_key_repeat()))
@@ -179,14 +185,11 @@ fn new_key_repeat() -> KeyRepeat {
 
 fn populate_world(commands: &mut Commands, world: WorldMap) {
     spawn_tiles(commands, &world);
-    let colonist = Unit::land(UnitType::Colonist, WorldTerrain::new(&world).tiles());
-    if let Some(unit) = &colonist {
-        commands.spawn((ColonistGlyph, unit_on_map(unit)));
-    }
-    if let Some(caravel) = Unit::land(UnitType::Caravel, WorldTerrain::new(&world).tiles()) {
-        commands.spawn(unit_on_map(&caravel));
-    }
-    commands.insert_resource(Colonist(colonist));
+    let tiles: Vec<_> = WorldTerrain::new(&world).tiles().collect();
+    commands.insert_resource(Units {
+        expedition: Expedition::land(&tiles),
+        active: ActiveUnit::Colonist,
+    });
     commands.insert_resource(World(world));
 }
 
@@ -207,26 +210,6 @@ fn tile_glyph(position: MapPosition, glyph: Glyph) -> impl Bundle {
         TextFont::from_font_size(GLYPH_FONT_SIZE),
         TextColor(color_of(glyph.color)),
         Transform::from_xyz(x, y, 0.0),
-    )
-}
-
-/// A coloured square hiding the terrain glyph beneath, with the unit's glyph on top.
-fn unit_on_map(unit: &Unit) -> impl Bundle {
-    let glyph = unit_glyph(unit.unit_type());
-    let (x, y) = LAYOUT.tile_translation(map_position(unit.position()));
-    (
-        MapGlyph,
-        Sprite::from_color(
-            UNIT_BACKGROUND,
-            Vec2::new(LAYOUT.tile_width, LAYOUT.tile_height),
-        ),
-        Transform::from_xyz(x, y, 1.0),
-        children![(
-            Text2d::new(glyph.symbol.to_string()),
-            TextFont::from_font_size(GLYPH_FONT_SIZE),
-            TextColor(color_of(glyph.color)),
-            Transform::from_xyz(0.0, 0.0, 1.0),
-        )],
     )
 }
 
@@ -256,34 +239,37 @@ fn fit_viewport_to_window(
     navigation.viewport.resize(columns, rows);
 }
 
-fn move_colonist(
+fn switch_unit(keys: Res<ButtonInput<KeyCode>>, mut units: ResMut<Units>) {
+    if keys.just_pressed(SWITCH_UNIT_KEY) {
+        units.active = units.active.switched();
+    }
+}
+
+fn move_unit(
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
     world: Res<World>,
-    mut orders: ResMut<ColonistOrders>,
-    mut colonist: ResMut<Colonist>,
+    mut orders: ResMut<UnitOrders>,
+    mut units: ResMut<Units>,
 ) {
     let terrain = WorldTerrain::new(&world.0);
     for ((direction, repeat), (_, key)) in orders.move_repeats.iter_mut().zip(MOVE_KEYS) {
         repeat.tick(is_held(&keys, key), time.delta());
         for _ in 0..repeat.steps_due() {
-            // Touching the colonist only when a step is due keeps change detection meaningful
-            // for following it. A blocked step just leaves it where it stands.
-            if let Some(unit) = colonist.0.as_mut() {
-                let _ = unit.move_toward(*direction, &terrain);
-            }
+            // Touching the units only when a step is due keeps change detection meaningful for
+            // following and drawing them.
+            let Units { expedition, active } = units.as_mut();
+            active.order_move(expedition, *direction, &terrain);
         }
     }
 }
 
-fn follow_colonist(colonist: Res<Colonist>, mut navigation: ResMut<Navigation>) {
-    if !colonist.is_changed() {
+fn follow_active_unit(units: Res<Units>, mut navigation: ResMut<Navigation>) {
+    if !units.is_changed() {
         return;
     }
-    if let Some(unit) = &colonist.0 {
-        navigation
-            .viewport
-            .keep_in_view(map_position(unit.position()));
+    if let Some(position) = units.active.position(&units.expedition) {
+        navigation.viewport.keep_in_view(map_position(position));
     }
 }
 
@@ -308,13 +294,39 @@ fn is_held(keys: &ButtonInput<KeyCode>, key: KeyCode) -> bool {
     keys.pressed(key) || keys.just_pressed(key)
 }
 
-fn place_colonist(colonist: Res<Colonist>, mut glyph: Query<&mut Transform, With<ColonistGlyph>>) {
-    let (Some(unit), Ok(mut transform)) = (&colonist.0, glyph.single_mut()) else {
+fn draw_units(mut commands: Commands, units: Res<Units>, glyphs: Query<Entity, With<UnitGlyph>>) {
+    if !units.is_changed() {
         return;
+    }
+    glyphs
+        .iter()
+        .for_each(|glyph| commands.entity(glyph).despawn());
+    present_units(&units.expedition, units.active)
+        .into_iter()
+        .for_each(|marker| {
+            commands.spawn(unit_on_map(marker));
+        });
+}
+
+/// A coloured square hiding the terrain glyph beneath, with the unit's glyph on top.
+fn unit_on_map(marker: UnitMarker) -> impl Bundle {
+    let (x, y) = LAYOUT.tile_translation(marker.position);
+    let background = if marker.is_active {
+        ACTIVE_UNIT_BACKGROUND
+    } else {
+        IDLE_UNIT_BACKGROUND
     };
-    let (x, y) = LAYOUT.tile_translation(map_position(unit.position()));
-    transform.translation.x = x;
-    transform.translation.y = y;
+    (
+        UnitGlyph,
+        Sprite::from_color(background, Vec2::new(LAYOUT.tile_width, LAYOUT.tile_height)),
+        Transform::from_xyz(x, y, 1.0),
+        children![(
+            Text2d::new(marker.glyph.symbol.to_string()),
+            TextFont::from_font_size(GLYPH_FONT_SIZE),
+            TextColor(color_of(marker.glyph.color)),
+            Transform::from_xyz(0.0, 0.0, 1.0),
+        )],
+    )
 }
 
 fn aim_camera(

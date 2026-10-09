@@ -33,7 +33,8 @@ pub fn present_legend() -> LegendViewModel {
             unit_entry(UnitType::Caravel),
         ],
         controls: vec![
-            control_hint("WASD", "Move colonist"),
+            control_hint("WASD", "Move unit"),
+            control_hint("Tab", "Switch unit"),
             control_hint("Arrows", "Pan view"),
             control_hint("R", "New map"),
         ],

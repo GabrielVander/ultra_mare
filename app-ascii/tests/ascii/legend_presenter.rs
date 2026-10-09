@@ -53,7 +53,8 @@ fn should_list_the_controls() {
         .collect();
     assert_eq!(
         vec![
-            ("WASD", "Move colonist"),
+            ("WASD", "Move unit"),
+            ("Tab", "Switch unit"),
             ("Arrows", "Pan view"),
             ("R", "New map"),
         ],
