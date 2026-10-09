@@ -3116,6 +3116,13 @@ name = "lib-terrain"
 version = "0.1.0"
 
 [[package]]
+name = "lib-unit"
+version = "0.1.0"
+dependencies = [
+ "lib-terrain",
+]
+
+[[package]]
 name = "lib-world-generation"
 version = "0.1.0"
 dependencies = [
