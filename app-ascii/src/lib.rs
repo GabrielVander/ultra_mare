@@ -8,6 +8,7 @@ pub use map_view::{
     terrain_glyph::{Glyph, Rgb, glyph_for},
 };
 pub use navigation::{
+    key_repeat::{KeyRepeat, KeyRepeatError},
     screen_layout::ScreenLayout,
     viewport::{PanDirection, Viewport},
 };
