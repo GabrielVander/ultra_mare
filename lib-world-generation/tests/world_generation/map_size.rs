@@ -16,6 +16,6 @@ fn should_reject_a_map_without_width_or_height() {
                 Err(MapSizeError::Empty),
                 MapSize::new(width, height),
                 "{width}x{height}"
-            )
+            );
         });
 }

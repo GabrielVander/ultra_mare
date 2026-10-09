@@ -1,4 +1,4 @@
-use lib_unit::{Direction, EmbarkError, TilePosition, UnitType};
+use lib_unit::{Direction, EmbarkError, TilePosition, Unit, UnitType};
 
 use crate::support::{TerrainGrid, caravel_at, colonist_at};
 
@@ -10,10 +10,7 @@ fn should_take_aboard_a_colonist_embarking_from_the_next_tile() {
     let embarked = colonist.embark(&mut caravel);
 
     assert!(embarked.is_ok());
-    let aboard: Vec<UnitType> = caravel
-        .units_aboard()
-        .map(|unit| unit.unit_type())
-        .collect();
+    let aboard: Vec<UnitType> = caravel.units_aboard().map(Unit::unit_type).collect();
     assert_eq!(vec![UnitType::Colonist], aboard);
 }
 
@@ -67,7 +64,7 @@ fn should_carry_the_colonists_aboard_wherever_the_caravel_sails() {
     caravel.move_toward(Direction::North, &coast).unwrap();
     caravel.move_toward(Direction::East, &coast).unwrap();
 
-    let positions: Vec<TilePosition> = caravel.units_aboard().map(|unit| unit.position()).collect();
+    let positions: Vec<TilePosition> = caravel.units_aboard().map(Unit::position).collect();
     assert_eq!(vec![TilePosition { x: 2, y: 0 }], positions);
 }
 
@@ -79,7 +76,7 @@ fn should_put_an_embarked_colonist_on_the_caravel_tile() {
         .embark(&mut caravel)
         .unwrap();
 
-    let positions: Vec<TilePosition> = caravel.units_aboard().map(|unit| unit.position()).collect();
+    let positions: Vec<TilePosition> = caravel.units_aboard().map(Unit::position).collect();
     assert_eq!(vec![TilePosition { x: 1, y: 0 }], positions);
 }
 

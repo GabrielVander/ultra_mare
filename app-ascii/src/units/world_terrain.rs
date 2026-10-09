@@ -1,6 +1,6 @@
 use lib_terrain::TerrainType;
 use lib_unit::{MapTerrain, TilePosition};
-use lib_world_generation::{MapPosition, WorldMap};
+use lib_world_generation::{MapPosition, MapTile, WorldMap};
 
 /// The generated world map, seen through the unit context's eyes.
 pub struct WorldTerrain<'a> {
@@ -26,7 +26,7 @@ impl MapTerrain for WorldTerrain<'_> {
     fn terrain_at(&self, position: TilePosition) -> Option<TerrainType> {
         self.map
             .tile_at(map_position(position))
-            .map(|tile| tile.terrain_type())
+            .map(MapTile::terrain_type)
     }
 }
 

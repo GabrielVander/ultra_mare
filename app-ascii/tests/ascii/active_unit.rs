@@ -1,5 +1,5 @@
 use app_ascii::ActiveUnit;
-use lib_colony::Colonies;
+use lib_colony::{Colonies, Colony};
 use lib_unit::{Direction, Expedition, TilePosition};
 
 use crate::support::Shore;
@@ -51,7 +51,7 @@ fn should_found_a_colony_with_the_active_colonist_and_hand_over_to_the_caravel()
 
     active.order_found_colony(&mut expedition, &mut colonies, &Shore);
 
-    let sites: Vec<TilePosition> = colonies.iter().map(|colony| colony.position()).collect();
+    let sites: Vec<TilePosition> = colonies.iter().map(Colony::position).collect();
     assert_eq!(vec![TilePosition { x: 1, y: 0 }], sites);
     assert_eq!(ActiveUnit::Caravel, active);
 }

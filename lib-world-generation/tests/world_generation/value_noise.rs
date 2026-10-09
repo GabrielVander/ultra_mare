@@ -43,9 +43,9 @@ fn should_change_gradually_between_neighbouring_tiles() {
                     assert!(
                         (here - neighbour).abs() <= 0.2,
                         "({x}, {y}): {here} next to {neighbour}"
-                    )
+                    );
                 });
-        })
+        });
     });
 }
 

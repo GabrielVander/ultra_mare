@@ -23,7 +23,7 @@ fn should_generate_only_one_terrain_given_type_and_any_noise_value() {
         noise_values.into_iter().for_each(|value| {
             let map_tile: MapTile = MapTile::generate_from_noise_value(&weights, noise(value));
 
-            assert_eq!(*terrain, map_tile.terrain_type(), "{}", value)
+            assert_eq!(*terrain, map_tile.terrain_type(), "{value}");
         });
     });
 }

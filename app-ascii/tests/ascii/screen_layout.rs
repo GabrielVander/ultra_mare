@@ -20,7 +20,7 @@ fn should_fit_whole_tiles_left_of_the_legend() {
             expected,
             LAYOUT.viewport_size(window_width, window_height),
             "{window_width}x{window_height}"
-        )
+        );
     });
 }
 

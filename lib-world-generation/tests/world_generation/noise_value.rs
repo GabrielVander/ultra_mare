@@ -17,8 +17,7 @@ fn should_reject_values_outside_zero_to_one() {
         assert_eq!(
             Err(NoiseValueError::OutOfRange),
             NoiseValue::new(value),
-            "{:?}",
-            value
-        )
+            "{value:?}"
+        );
     });
 }

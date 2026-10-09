@@ -1,4 +1,4 @@
-use lib_unit::{Direction, Expedition, TilePosition, UnitType};
+use lib_unit::{Direction, Expedition, TilePosition, Unit, UnitType};
 
 use crate::support::TerrainGrid;
 
@@ -113,10 +113,7 @@ fn should_settle_the_colonist_ashore_off_the_map() {
 
     assert_eq!(UnitType::Colonist, settler.unit_type());
     assert_eq!(TilePosition { x: 0, y: 0 }, settler.position());
-    let on_map: Vec<UnitType> = expedition
-        .units_on_map()
-        .map(|unit| unit.unit_type())
-        .collect();
+    let on_map: Vec<UnitType> = expedition.units_on_map().map(Unit::unit_type).collect();
     assert_eq!(vec![UnitType::Caravel], on_map);
 }
 
@@ -139,7 +136,7 @@ fn should_not_settle_the_colonist_while_it_is_aboard() {
 fn should_tell_the_colonist_ashore_only_while_it_is_not_aboard() {
     let shore = TerrainGrid(&[".~"]);
     let mut expedition = Expedition::land(&shore.tiles());
-    let ashore = expedition.colonist_ashore().map(|unit| unit.position());
+    let ashore = expedition.colonist_ashore().map(Unit::position);
 
     expedition.move_colonist(Direction::East, &shore);
 

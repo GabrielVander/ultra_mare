@@ -1,6 +1,6 @@
 use lib_terrain::TerrainType;
 use lib_world_generation::{
-    MapPosition, MapSize, NoiseSource, NoiseValue, TerrainGenerationWeights, WorldMap,
+    MapPosition, MapSize, MapTile, NoiseSource, NoiseValue, TerrainGenerationWeights, WorldMap,
 };
 
 use crate::support::{ConstantNoise, noise};
@@ -33,11 +33,10 @@ fn should_give_each_tile_the_terrain_of_the_noise_at_its_position() {
             };
             assert_eq!(
                 Some(expected_terrain),
-                map.tile_at(MapPosition { x, y })
-                    .map(|tile| tile.terrain_type()),
+                map.tile_at(MapPosition { x, y }).map(MapTile::terrain_type),
                 "({x}, {y})"
-            )
-        })
+            );
+        });
     });
 }
 

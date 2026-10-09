@@ -1,5 +1,5 @@
-use lib_colony::{Colonies, FoundColonyError};
-use lib_unit::{Direction, Expedition, TilePosition, UnitType};
+use lib_colony::{Colonies, Colony, FoundColonyError};
+use lib_unit::{Direction, Expedition, TilePosition, Unit, UnitType};
 
 use crate::support::{TerrainGrid, colonist_at};
 
@@ -14,12 +14,9 @@ fn should_found_a_colony_where_the_colonist_stands() {
     let founded = colonies.found(&mut expedition, &SHORE);
 
     assert_eq!(Ok(TilePosition { x: 0, y: 0 }), founded);
-    let sites: Vec<TilePosition> = colonies.iter().map(|colony| colony.position()).collect();
+    let sites: Vec<TilePosition> = colonies.iter().map(Colony::position).collect();
     assert_eq!(vec![TilePosition { x: 0, y: 0 }], sites);
-    let on_map: Vec<UnitType> = expedition
-        .units_on_map()
-        .map(|unit| unit.unit_type())
-        .collect();
+    let on_map: Vec<UnitType> = expedition.units_on_map().map(Unit::unit_type).collect();
     assert_eq!(vec![UnitType::Caravel], on_map);
 }
 
@@ -32,7 +29,7 @@ fn should_take_the_founding_colonist_into_the_colony() {
 
     let colonists: Vec<(UnitType, TilePosition)> = colonies
         .iter()
-        .flat_map(|colony| colony.colonists())
+        .flat_map(Colony::colonists)
         .map(|unit| (unit.unit_type(), unit.position()))
         .collect();
     assert_eq!(

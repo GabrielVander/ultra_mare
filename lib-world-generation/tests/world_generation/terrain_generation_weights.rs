@@ -37,9 +37,8 @@ fn should_fail_when_given_weights_that_dont_add_up_to_100_percent() {
         assert_eq!(
             Err(TerrainGenerationWeightsError::WeightsDoNotSumToOne),
             TerrainGenerationWeights::new(&weights).map(|_| ()),
-            "{:?}",
-            weights
-        )
+            "{weights:?}"
+        );
     });
 }
 
@@ -68,7 +67,7 @@ fn should_succeed_when_given_weights_that_add_up_to_100_percent() {
     ];
 
     weight_inputs.into_iter().for_each(|weights| {
-        assert_eq!(Ok(()), TerrainGenerationWeights::new(&weights).map(|_| ()))
+        assert_eq!(Ok(()), TerrainGenerationWeights::new(&weights).map(|_| ()));
     });
 }
 
@@ -85,7 +84,7 @@ fn should_succeed_when_weights_add_up_to_100_percent_except_for_float_rounding()
         "precondition: the sum must be off by rounding"
     );
 
-    assert_eq!(Ok(()), TerrainGenerationWeights::new(&weights).map(|_| ()))
+    assert_eq!(Ok(()), TerrainGenerationWeights::new(&weights).map(|_| ()));
 }
 
 #[test]
@@ -132,9 +131,8 @@ fn should_fail_when_given_the_same_terrain_more_than_once() {
                     duplicated_terrain
                 )),
                 TerrainGenerationWeights::new(&weights).map(|_| ()),
-                "{:?}",
-                weights
-            )
+                "{weights:?}"
+            );
         });
 }
 
@@ -170,9 +168,8 @@ fn should_fail_when_given_an_invalid_weight() {
                     invalid_terrain
                 )),
                 TerrainGenerationWeights::new(&weights).map(|_| ()),
-                "{:?}",
-                weights
-            )
+                "{weights:?}"
+            );
         });
 }
 
@@ -184,9 +181,8 @@ fn should_pick_the_only_terrain_for_any_noise_value() {
         assert_eq!(
             TerrainType::Sea,
             weights.terrain_for(noise(value)),
-            "{}",
-            value
-        )
+            "{value}"
+        );
     });
 }
 
@@ -207,9 +203,8 @@ fn should_pick_the_band_containing_the_noise_value_with_boundaries_in_the_upper_
         assert_eq!(
             expected_terrain,
             weights.terrain_for(noise(value)),
-            "{}",
-            value
-        )
+            "{value}"
+        );
     });
 }
 
@@ -230,9 +225,8 @@ fn should_pick_the_last_band_for_the_maximum_noise_value() {
         assert_eq!(
             TerrainType::Sea,
             weights.terrain_for(noise(1.0)),
-            "{:?}",
-            raw_weights
-        )
+            "{raw_weights:?}"
+        );
     });
 }
 
@@ -255,10 +249,8 @@ fn should_never_pick_a_terrain_without_weight() {
             assert_ne!(
                 TerrainType::Mountain,
                 weights.terrain_for(noise(value)),
-                "{:?} at {}",
-                raw_weights,
-                value
-            )
+                "{raw_weights:?} at {value}"
+            );
         });
     });
 }
@@ -286,8 +278,7 @@ fn should_pick_terrains_in_proportion_to_their_weights() {
         assert_eq!(
             expected_terrain,
             weights.terrain_for(noise(value)),
-            "{}",
-            value
-        )
+            "{value}"
+        );
     });
 }

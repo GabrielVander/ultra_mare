@@ -21,7 +21,7 @@ fn should_list_every_terrain_type_exactly_once() {
 fn should_treat_only_sea_as_water() {
     let water: Vec<TerrainType> = TerrainType::ALL
         .into_iter()
-        .filter(|terrain| terrain.is_water())
+        .filter(TerrainType::is_water)
         .collect();
 
     assert_eq!(vec![TerrainType::Sea], water);
