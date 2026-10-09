@@ -15,6 +15,9 @@ impl Colonies {
             .colonist_ashore()
             .map(Unit::position)
             .ok_or(FoundColonyError::NoColonistAshore)?;
+        if self.is_crowded(site) {
+            return Err(FoundColonyError::TooCloseToColony);
+        }
         self.colonies
             .extend(expedition.settle_colonist().map(Colony::founded_by));
         Ok(site)
@@ -22,5 +25,13 @@ impl Colonies {
 
     pub fn iter(&self) -> impl Iterator<Item = &Colony> {
         self.colonies.iter()
+    }
+
+    /// Whether a colony stands on `site` or on any of the eight tiles around it.
+    fn is_crowded(&self, site: TilePosition) -> bool {
+        self.colonies.iter().any(|colony| {
+            let position = colony.position();
+            position.x.abs_diff(site.x) <= 1 && position.y.abs_diff(site.y) <= 1
+        })
     }
 }

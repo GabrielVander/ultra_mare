@@ -1,5 +1,5 @@
 use lib_terrain::TerrainType;
-use lib_unit::{MapTerrain, TilePosition};
+use lib_unit::{Expedition, MapTerrain, TilePosition};
 
 /// A map drawn as rows of text: `~` is sea, any other character is plains.
 pub struct TerrainGrid(pub &'static [&'static str]);
@@ -23,4 +23,9 @@ impl MapTerrain for TerrainGrid {
             _ => TerrainType::Plains,
         })
     }
+}
+
+/// An expedition whose colonist stands on `position`, with no caravel.
+pub fn colonist_at(position: TilePosition) -> Expedition {
+    Expedition::land(&[(position, TerrainType::Plains)])
 }
