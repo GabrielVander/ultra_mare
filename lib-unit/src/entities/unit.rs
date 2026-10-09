@@ -1,6 +1,9 @@
 use lib_terrain::TerrainType;
 
-use crate::entities::{tile_position::TilePosition, unit_type::UnitType};
+use crate::{
+    entities::{tile_position::TilePosition, unit_type::UnitType},
+    movement::{direction::Direction, map_terrain::MapTerrain, move_error::MoveError},
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Unit {
@@ -23,11 +26,48 @@ impl Unit {
         })
     }
 
+    /// Steps onto the neighbouring tile, as often as asked: units have no movement limit yet.
+    pub fn move_toward(
+        &mut self,
+        direction: Direction,
+        map: &impl MapTerrain,
+    ) -> Result<(), MoveError> {
+        let destination = self.neighbour(direction).ok_or(MoveError::OffMap)?;
+        let terrain = map.terrain_at(destination).ok_or(MoveError::OffMap)?;
+        if !self.unit_type.can_enter(terrain) {
+            return Err(MoveError::Impassable(terrain));
+        }
+        self.position = destination;
+        Ok(())
+    }
+
     pub fn unit_type(&self) -> UnitType {
         self.unit_type
     }
 
     pub fn position(&self) -> TilePosition {
         self.position
+    }
+
+    fn neighbour(&self, direction: Direction) -> Option<TilePosition> {
+        let TilePosition { x, y } = self.position;
+        Some(match direction {
+            Direction::North => TilePosition {
+                x,
+                y: y.checked_sub(1)?,
+            },
+            Direction::South => TilePosition {
+                x,
+                y: y.checked_add(1)?,
+            },
+            Direction::East => TilePosition {
+                x: x.checked_add(1)?,
+                y,
+            },
+            Direction::West => TilePosition {
+                x: x.checked_sub(1)?,
+                y,
+            },
+        })
     }
 }
