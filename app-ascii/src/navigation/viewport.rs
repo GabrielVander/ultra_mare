@@ -85,7 +85,6 @@ impl Viewport {
         }
     }
 
-    /// The origin coordinate closest to `origin` whose `span` still shows `coordinate`.
     fn nearest_showing(origin: u32, coordinate: u32, span: u32) -> u32 {
         let first_showing = coordinate.saturating_sub(span.saturating_sub(1));
         origin.clamp(first_showing, coordinate)

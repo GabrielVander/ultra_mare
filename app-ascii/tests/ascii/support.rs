@@ -1,7 +1,6 @@
 use lib_terrain::TerrainType;
 use lib_unit::{MapTerrain, TilePosition};
 
-/// Plains then sea, one row high: `..~~`.
 pub struct Shore;
 
 impl Shore {

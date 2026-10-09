@@ -341,7 +341,7 @@ fn draw_colonies(
         });
 }
 
-/// Drawn between the terrain and the units, so a unit visiting the colony shows on top.
+// Drawn between the terrain and the units, so a unit visiting the colony shows on top.
 fn colony_on_map(marker: ColonyMarker) -> impl Bundle {
     let (x, y) = LAYOUT.tile_translation(marker.position);
     (
@@ -374,7 +374,6 @@ fn draw_units(mut commands: Commands, units: Res<Units>, glyphs: Query<Entity, W
         });
 }
 
-/// A coloured square hiding the terrain glyph beneath, with the unit's glyph on top.
 fn unit_on_map(marker: UnitMarker) -> impl Bundle {
     let (x, y) = LAYOUT.tile_translation(marker.position);
     let background = if marker.is_active {

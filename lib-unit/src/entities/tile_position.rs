@@ -7,7 +7,6 @@ pub struct TilePosition {
 }
 
 impl TilePosition {
-    /// The tile one step away in `direction`, or `None` past the last representable tile.
     pub(crate) fn neighbour(self, direction: Direction) -> Option<TilePosition> {
         let TilePosition { x, y } = self;
         Some(match direction {

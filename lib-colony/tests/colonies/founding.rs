@@ -4,7 +4,6 @@ use lib_unit::{Direction, Expedition, TilePosition, UnitType};
 use crate::support::{TerrainGrid, colonist_at};
 
 const SHORE: TerrainGrid = TerrainGrid(&[".~"]);
-/// Land and sea alternate, so every tile lies on the coast.
 const CHECKERED_COAST: TerrainGrid = TerrainGrid(&[".~.~.", "~.~.~", ".~.~.", "~.~.~", ".~.~."]);
 
 #[test]

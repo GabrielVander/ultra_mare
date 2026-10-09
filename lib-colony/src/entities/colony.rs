@@ -8,7 +8,6 @@ pub struct Colony {
 }
 
 impl Colony {
-    /// The colony `founder` builds on the tile it stands on.
     pub(crate) fn founded_by(founder: Unit) -> Self {
         Self {
             position: founder.position(),

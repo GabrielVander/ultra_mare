@@ -6,7 +6,6 @@ use crate::{
     units::{active_unit::ActiveUnit, unit_glyph::unit_glyph, world_terrain::map_position},
 };
 
-/// A unit drawn on its tile.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct UnitMarker {
     pub position: MapPosition,

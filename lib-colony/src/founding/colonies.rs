@@ -2,7 +2,6 @@ use lib_unit::{Expedition, MapTerrain, TilePosition, Unit};
 
 use crate::{entities::colony::Colony, founding::found_colony_error::FoundColonyError};
 
-/// Every colony founded so far.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Colonies {
     colonies: Vec<Colony>,
@@ -35,7 +34,6 @@ impl Colonies {
         self.colonies.iter()
     }
 
-    /// Whether a colony stands on `site` or on any of the eight tiles around it.
     fn is_crowded(&self, site: TilePosition) -> bool {
         self.colonies.iter().any(|colony| {
             let position = colony.position();
@@ -44,14 +42,12 @@ impl Colonies {
     }
 }
 
-/// Whether sea lies on `site` or on any of the eight tiles around it.
 fn is_coastal(site: TilePosition, map: &impl MapTerrain) -> bool {
     surroundings(site)
         .filter_map(|position| map.terrain_at(position))
         .any(|terrain| terrain.is_water())
 }
 
-/// `site` and the eight tiles around it, short of the last representable tile.
 fn surroundings(site: TilePosition) -> impl Iterator<Item = TilePosition> {
     (-1..=1).flat_map(move |dy| {
         (-1..=1).filter_map(move |dx| {

@@ -1,7 +1,6 @@
 use lib_colony::Colonies;
 use lib_unit::{Direction, Expedition, MapTerrain, TilePosition};
 
-/// The unit the player's orders go to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ActiveUnit {
     Colonist,

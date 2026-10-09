@@ -6,7 +6,6 @@ use crate::{
     units::world_terrain::map_position,
 };
 
-/// A colony drawn on its tile.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ColonyMarker {
     pub position: MapPosition,

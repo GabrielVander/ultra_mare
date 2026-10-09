@@ -68,7 +68,6 @@ impl Expedition {
         self.caravel.as_ref().map(Unit::position)
     }
 
-    /// The colonist when it is still on the map, `None` once it boards.
     fn walk_or_embark(
         &mut self,
         colonist: Unit,
