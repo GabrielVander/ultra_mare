@@ -1,6 +1,7 @@
 mod legend;
 mod map_view;
 mod navigation;
+mod units;
 mod world;
 
 pub use legend::legend_presenter::{ControlHint, LegendEntry, LegendViewModel, present_legend};
@@ -12,5 +13,9 @@ pub use navigation::{
     key_repeat::{KeyRepeat, KeyRepeatError},
     screen_layout::ScreenLayout,
     viewport::{PanDirection, Viewport},
+};
+pub use units::{
+    unit_glyph::unit_glyph,
+    world_terrain::{WorldTerrain, map_position},
 };
 pub use world::world_settings::generate_world;

@@ -6,5 +6,6 @@ edition = "2024"
 [dependencies]
 bevy = "0.18.1"
 lib-terrain = { path = "../lib-terrain" }
+lib-unit = { path = "../lib-unit" }
 lib-world-generation = { path = "../lib-world-generation" }
 rand = "0.10.1"

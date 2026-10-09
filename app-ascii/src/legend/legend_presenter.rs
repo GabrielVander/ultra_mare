@@ -1,10 +1,15 @@
 use lib_terrain::TerrainType;
+use lib_unit::UnitType;
 
-use crate::map_view::terrain_glyph::{Glyph, glyph_for};
+use crate::{
+    map_view::terrain_glyph::{Glyph, glyph_for},
+    units::unit_glyph::unit_glyph,
+};
 
 #[derive(Debug, PartialEq)]
 pub struct LegendViewModel {
     pub terrains: Vec<LegendEntry>,
+    pub units: Vec<LegendEntry>,
     pub controls: Vec<ControlHint>,
 }
 
@@ -22,7 +27,8 @@ pub struct ControlHint {
 
 pub fn present_legend() -> LegendViewModel {
     LegendViewModel {
-        terrains: TerrainType::ALL.into_iter().map(legend_entry).collect(),
+        terrains: TerrainType::ALL.into_iter().map(terrain_entry).collect(),
+        units: vec![unit_entry(UnitType::FreeColonist)],
         controls: vec![
             control_hint("Arrows/WASD", "Move"),
             control_hint("R", "New map"),
@@ -30,7 +36,7 @@ pub fn present_legend() -> LegendViewModel {
     }
 }
 
-fn legend_entry(terrain: TerrainType) -> LegendEntry {
+fn terrain_entry(terrain: TerrainType) -> LegendEntry {
     LegendEntry {
         glyph: glyph_for(terrain),
         label: terrain_name(terrain).to_string(),
@@ -45,6 +51,19 @@ fn terrain_name(terrain: TerrainType) -> &'static str {
         TerrainType::Jungle => "Jungle",
         TerrainType::Plains => "Plains",
         TerrainType::Sea => "Sea",
+    }
+}
+
+fn unit_entry(unit_type: UnitType) -> LegendEntry {
+    LegendEntry {
+        glyph: unit_glyph(unit_type),
+        label: unit_name(unit_type).to_string(),
+    }
+}
+
+fn unit_name(unit_type: UnitType) -> &'static str {
+    match unit_type {
+        UnitType::FreeColonist => "Free Colonist",
     }
 }
 

@@ -1,5 +1,6 @@
-use app_ascii::{glyph_for, present_legend};
+use app_ascii::{glyph_for, present_legend, unit_glyph};
 use lib_terrain::TerrainType;
+use lib_unit::UnitType;
 
 #[test]
 fn should_name_every_terrain_next_to_its_map_glyph() {
@@ -19,6 +20,21 @@ fn should_name_every_terrain_next_to_its_map_glyph() {
             (glyph_for(TerrainType::Plains), "Plains"),
             (glyph_for(TerrainType::Sea), "Sea"),
         ],
+        entries
+    );
+}
+
+#[test]
+fn should_name_every_unit_next_to_its_map_glyph() {
+    let legend = present_legend();
+
+    let entries: Vec<_> = legend
+        .units
+        .iter()
+        .map(|entry| (entry.glyph, entry.label.as_str()))
+        .collect();
+    assert_eq!(
+        vec![(unit_glyph(UnitType::FreeColonist), "Free Colonist")],
         entries
     );
 }
