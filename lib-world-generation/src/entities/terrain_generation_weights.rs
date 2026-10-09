@@ -41,6 +41,10 @@ impl TerrainGenerationWeights {
     }
 
     #[must_use]
+    #[expect(
+        clippy::missing_panics_doc,
+        reason = "construction guarantees a band, so it never panics"
+    )]
     pub fn terrain_for(&self, noise: NoiseValue) -> TerrainType {
         self.bands
             .iter()

@@ -7,6 +7,10 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Unit {
+    #[expect(
+        clippy::struct_field_names,
+        reason = "unit type is the domain's term, taken from FreeCol"
+    )]
     unit_type: UnitType,
     position: TilePosition,
     pub(crate) aboard: Vec<Unit>,

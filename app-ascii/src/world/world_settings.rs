@@ -19,6 +19,10 @@ const TERRAIN_WEIGHTS: [(TerrainType, f32); 6] = [
 ];
 
 #[must_use]
+#[expect(
+    clippy::missing_panics_doc,
+    reason = "the constant settings are valid, so it never panics"
+)]
 pub fn generate_world(seed: u64) -> WorldMap {
     let size = MapSize::new(MAP_WIDTH, MAP_HEIGHT).expect("the map size is not empty");
     let weights =
