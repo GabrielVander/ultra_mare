@@ -3,7 +3,10 @@ use lib_unit::UnitType;
 
 use crate::{
     colonies::colony_glyph::colony_glyph,
-    map_view::terrain_glyph::{Glyph, glyph_for},
+    map_view::{
+        terrain_glyph::{Glyph, glyph_for},
+        terrain_name::terrain_name,
+    },
     units::unit_glyph::unit_glyph,
 };
 
@@ -52,17 +55,6 @@ fn terrain_entry(terrain: TerrainType) -> LegendEntry {
     LegendEntry {
         glyph: glyph_for(terrain),
         label: terrain_name(terrain).to_string(),
-    }
-}
-
-fn terrain_name(terrain: TerrainType) -> &'static str {
-    match terrain {
-        TerrainType::Mountain => "Mountain",
-        TerrainType::Hills => "Hills",
-        TerrainType::Forest => "Forest",
-        TerrainType::Jungle => "Jungle",
-        TerrainType::Plains => "Plains",
-        TerrainType::Sea => "Sea",
     }
 }
 
