@@ -7,6 +7,7 @@ mod map_presenter;
 mod screen_layout;
 mod support;
 mod terrain_glyph;
+mod tile_info_presenter;
 mod unit_glyph;
 mod unit_presenter;
 mod viewport;

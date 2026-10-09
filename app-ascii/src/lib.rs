@@ -2,6 +2,7 @@ mod colonies;
 mod legend;
 mod map_view;
 mod navigation;
+mod tile_info;
 mod units;
 mod world;
 
@@ -19,6 +20,7 @@ pub use navigation::{
     screen_layout::ScreenLayout,
     viewport::{PanDirection, Viewport},
 };
+pub use tile_info::tile_info_presenter::{ProductionLine, TileInfoViewModel, present_tile_info};
 pub use units::{
     active_unit::ActiveUnit,
     unit_glyph::unit_glyph,

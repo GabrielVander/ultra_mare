@@ -21,3 +21,18 @@ impl MapTerrain for Shore {
         }
     }
 }
+
+/// A map of a single tile.
+pub struct Island(pub TerrainType);
+
+impl Island {
+    pub fn tiles(&self) -> Vec<(TilePosition, TerrainType)> {
+        vec![(TilePosition { x: 0, y: 0 }, self.0)]
+    }
+}
+
+impl MapTerrain for Island {
+    fn terrain_at(&self, position: TilePosition) -> Option<TerrainType> {
+        (position == TilePosition { x: 0, y: 0 }).then_some(self.0)
+    }
+}
