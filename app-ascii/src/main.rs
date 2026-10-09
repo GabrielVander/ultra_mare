@@ -183,6 +183,9 @@ fn populate_world(commands: &mut Commands, world: WorldMap) {
     if let Some(unit) = &colonist {
         commands.spawn((ColonistGlyph, unit_on_map(unit)));
     }
+    if let Some(caravel) = Unit::land(UnitType::Caravel, WorldTerrain::new(&world).tiles()) {
+        commands.spawn(unit_on_map(&caravel));
+    }
     commands.insert_resource(Colonist(colonist));
     commands.insert_resource(World(world));
 }
