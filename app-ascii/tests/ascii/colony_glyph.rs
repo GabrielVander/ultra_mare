@@ -1,10 +1,10 @@
-use app_ascii::{colony_glyph, glyph_for, unit_glyph};
+use app_ascii::{Glyph, colony_glyph, glyph_for, unit_glyph};
 use lib_terrain::TerrainType;
 use lib_unit::UnitType;
 
 #[test]
 fn should_show_a_colony_as_a_hash_unlike_any_terrain_or_unit() {
-    let glyph = colony_glyph();
+    let glyph: Glyph = colony_glyph();
 
     assert_eq!('#', glyph.symbol);
     TerrainType::ALL.into_iter().for_each(|terrain| {

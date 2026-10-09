@@ -8,7 +8,7 @@ use crate::support::Shore;
 fn should_mark_each_unit_on_its_tile_and_highlight_the_active_one() {
     let expedition = Expedition::land(&Shore.tiles());
 
-    let markers = present_units(&expedition, ActiveUnit::Caravel);
+    let markers: Vec<UnitMarker> = present_units(&expedition, ActiveUnit::Caravel);
 
     assert_eq!(
         vec![
@@ -33,7 +33,7 @@ fn should_highlight_the_caravel_carrying_the_active_colonist() {
     expedition.move_colonist(Direction::East, &Shore);
     expedition.move_colonist(Direction::East, &Shore);
 
-    let markers = present_units(&expedition, ActiveUnit::Colonist);
+    let markers: Vec<UnitMarker> = present_units(&expedition, ActiveUnit::Colonist);
 
     assert_eq!(
         vec![UnitMarker {

@@ -7,7 +7,7 @@ use lib_world_generation::{
 
 #[test]
 fn should_tell_units_the_terrain_of_each_world_tile() {
-    let map = land_on_top_row(3, 2);
+    let map: WorldMap = land_on_top_row(3, 2);
     let terrain = WorldTerrain::new(&map);
 
     assert_eq!(
@@ -22,7 +22,7 @@ fn should_tell_units_the_terrain_of_each_world_tile() {
 
 #[test]
 fn should_tell_units_there_is_no_terrain_off_the_world_map() {
-    let map = land_on_top_row(3, 2);
+    let map: WorldMap = land_on_top_row(3, 2);
     let terrain = WorldTerrain::new(&map);
 
     assert_eq!(None, terrain.terrain_at(TilePosition { x: 3, y: 0 }));
@@ -31,9 +31,9 @@ fn should_tell_units_there_is_no_terrain_off_the_world_map() {
 
 #[test]
 fn should_list_every_tile_with_its_terrain_row_by_row() {
-    let map = land_on_top_row(2, 2);
+    let map: WorldMap = land_on_top_row(2, 2);
 
-    let tiles: Vec<_> = WorldTerrain::new(&map).tiles().collect();
+    let tiles: Vec<(TilePosition, TerrainType)> = WorldTerrain::new(&map).tiles().collect();
 
     assert_eq!(
         vec![

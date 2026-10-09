@@ -37,8 +37,8 @@ impl KeyRepeat {
             (false, _) => (None, 0),
             (true, None) => (Some(Duration::ZERO), 1),
             (true, Some(held_for)) => {
-                let now_held_for = held_for + elapsed;
-                let repeats = self.repeats_after(now_held_for) - self.repeats_after(held_for);
+                let now_held_for: Duration = held_for + elapsed;
+                let repeats: u32 = self.repeats_after(now_held_for) - self.repeats_after(held_for);
                 (Some(now_held_for), repeats)
             }
         };

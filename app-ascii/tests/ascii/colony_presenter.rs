@@ -12,7 +12,7 @@ fn should_mark_each_colony_on_its_tile() {
     let mut colonies = Colonies::default();
     colonies.found(&mut expedition, &Shore).unwrap();
 
-    let markers = present_colonies(&colonies);
+    let markers: Vec<ColonyMarker> = present_colonies(&colonies);
 
     assert_eq!(
         vec![ColonyMarker {

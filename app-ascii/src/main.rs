@@ -6,13 +6,14 @@
 use std::time::Duration;
 
 use app_ascii::{
-    ActiveUnit, ColonyMarker, ControlHint, Glyph, KeyRepeat, LegendEntry, PanDirection, Rgb,
-    ScreenLayout, UnitMarker, Viewport, WorldTerrain, generate_world, map_position,
-    present_colonies, present_legend, present_map, present_units,
+    ActiveUnit, ColonyMarker, ControlHint, Glyph, KeyRepeat, LegendEntry, LegendViewModel,
+    MapViewModel, PanDirection, Rgb, ScreenLayout, UnitMarker, Viewport, WorldTerrain,
+    generate_world, map_position, present_colonies, present_legend, present_map, present_units,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
 use lib_colony::Colonies;
-use lib_unit::{Direction, Expedition};
+use lib_terrain::TerrainType;
+use lib_unit::{Direction, Expedition, TilePosition};
 use lib_world_generation::{MapPosition, WorldMap};
 
 const LAYOUT: ScreenLayout = ScreenLayout {
@@ -112,7 +113,7 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 fn spawn_legend(mut commands: Commands) {
-    let legend = present_legend();
+    let legend: LegendViewModel = present_legend();
 
     commands
         .spawn((
@@ -181,7 +182,8 @@ fn legend_span(text: &str) -> impl Bundle {
 }
 
 fn spawn_world(mut commands: Commands) {
-    let world = generate_world(rand::random());
+    let world: WorldMap = generate_world(rand::random());
+
     commands.insert_resource(Navigation {
         viewport: Viewport::new(world.size(), 0, 0),
         pan_repeats: PAN_KEYS
@@ -195,6 +197,7 @@ fn spawn_world(mut commands: Commands) {
             .map(|(direction, _)| (*direction, new_key_repeat()))
             .collect(),
     });
+
     populate_world(&mut commands, world);
 }
 
@@ -205,7 +208,9 @@ fn new_key_repeat() -> KeyRepeat {
 
 fn populate_world(commands: &mut Commands, world: WorldMap) {
     spawn_tiles(commands, &world);
-    let tiles: Vec<_> = WorldTerrain::new(&world).tiles().collect();
+
+    let tiles: Vec<(TilePosition, TerrainType)> = WorldTerrain::new(&world).tiles().collect();
+
     commands.insert_resource(Units {
         expedition: Expedition::land(&tiles),
         active: ActiveUnit::Colonist,
@@ -215,7 +220,7 @@ fn populate_world(commands: &mut Commands, world: WorldMap) {
 }
 
 fn spawn_tiles(commands: &mut Commands, world: &WorldMap) {
-    let view_model = present_map(world);
+    let view_model: MapViewModel = present_map(world);
     for (y, row) in (0..).zip(&view_model.rows) {
         for (x, glyph) in (0..).zip(row) {
             commands.spawn(tile_glyph(MapPosition { x, y }, *glyph));
@@ -224,7 +229,7 @@ fn spawn_tiles(commands: &mut Commands, world: &WorldMap) {
 }
 
 fn tile_glyph(position: MapPosition, glyph: Glyph) -> impl Bundle {
-    let (x, y) = LAYOUT.tile_translation(position);
+    let (x, y): (f32, f32) = LAYOUT.tile_translation(position);
     (
         MapGlyph,
         Text2d::new(glyph.symbol.to_string()),
@@ -256,7 +261,7 @@ fn fit_viewport_to_window(
     window: Single<&Window, With<PrimaryWindow>>,
     mut navigation: ResMut<Navigation>,
 ) {
-    let (columns, rows) = LAYOUT.viewport_size(window.width(), window.height());
+    let (columns, rows): (u32, u32) = LAYOUT.viewport_size(window.width(), window.height());
     navigation.viewport.resize(columns, rows);
 }
 
@@ -348,7 +353,7 @@ fn draw_colonies(
 
 // Drawn between the terrain and the units, so a unit visiting the colony shows on top.
 fn colony_on_map(marker: ColonyMarker) -> impl Bundle {
-    let (x, y) = LAYOUT.tile_translation(marker.position);
+    let (x, y): (f32, f32) = LAYOUT.tile_translation(marker.position);
     (
         ColonyGlyph,
         Sprite::from_color(
@@ -380,8 +385,8 @@ fn draw_units(mut commands: Commands, units: Res<Units>, glyphs: Query<Entity, W
 }
 
 fn unit_on_map(marker: UnitMarker) -> impl Bundle {
-    let (x, y) = LAYOUT.tile_translation(marker.position);
-    let background = if marker.is_active {
+    let (x, y): (f32, f32) = LAYOUT.tile_translation(marker.position);
+    let background: Color = if marker.is_active {
         ACTIVE_UNIT_BACKGROUND
     } else {
         IDLE_UNIT_BACKGROUND
@@ -404,7 +409,7 @@ fn aim_camera(
     navigation: Res<Navigation>,
     mut camera: Single<&mut Transform, With<Camera2d>>,
 ) {
-    let (x, y) = LAYOUT.camera_translation(
+    let (x, y): (f32, f32) = LAYOUT.camera_translation(
         navigation.viewport.origin(),
         window.width(),
         window.height(),

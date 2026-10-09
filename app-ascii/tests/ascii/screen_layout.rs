@@ -31,9 +31,9 @@ fn should_fit_no_tiles_when_the_legend_fills_the_window() {
 
 #[test]
 fn should_lay_tiles_out_left_to_right_and_top_to_bottom() {
-    let (x, y) = LAYOUT.tile_translation(MapPosition { x: 0, y: 0 });
-    let (right_x, right_y) = LAYOUT.tile_translation(MapPosition { x: 1, y: 0 });
-    let (below_x, below_y) = LAYOUT.tile_translation(MapPosition { x: 0, y: 1 });
+    let (x, y): (f32, f32) = LAYOUT.tile_translation(MapPosition { x: 0, y: 0 });
+    let (right_x, right_y): (f32, f32) = LAYOUT.tile_translation(MapPosition { x: 1, y: 0 });
+    let (below_x, below_y): (f32, f32) = LAYOUT.tile_translation(MapPosition { x: 0, y: 1 });
 
     assert_eq!((x + 16.0, y), (right_x, right_y));
     assert_eq!((x, y - 20.0), (below_x, below_y));
@@ -41,15 +41,15 @@ fn should_lay_tiles_out_left_to_right_and_top_to_bottom() {
 
 #[test]
 fn should_aim_the_camera_so_the_viewport_origin_fills_the_top_left_corner() {
-    let (window_width, window_height) = (1000.0, 600.0);
+    let (window_width, window_height): (f32, f32) = (1000.0, 600.0);
     [MapPosition { x: 0, y: 0 }, MapPosition { x: 7, y: 3 }]
         .into_iter()
         .for_each(|origin| {
-            let (tile_x, tile_y) = LAYOUT.tile_translation(origin);
-            let (camera_x, camera_y) =
+            let (tile_x, tile_y): (f32, f32) = LAYOUT.tile_translation(origin);
+            let (camera_x, camera_y): (f32, f32) =
                 LAYOUT.camera_translation(origin, window_width, window_height);
 
-            let top_left_corner = (
+            let top_left_corner: (f32, f32) = (
                 camera_x - window_width / 2.0,
                 camera_y + window_height / 2.0,
             );

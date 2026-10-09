@@ -1,4 +1,4 @@
-use lib_world_generation::{MapPosition, WorldMap};
+use lib_world_generation::{MapPosition, MapSize, WorldMap};
 
 use crate::map_view::terrain_glyph::{Glyph, glyph_for};
 
@@ -10,8 +10,8 @@ pub struct MapViewModel {
 
 #[must_use]
 pub fn present_map(map: &WorldMap) -> MapViewModel {
-    let size = map.size();
-    let rows = (0..size.height())
+    let size: MapSize = map.size();
+    let rows: Vec<Vec<Glyph>> = (0..size.height())
         .map(|y| {
             (0..size.width())
                 .filter_map(|x| map.tile_at(MapPosition { x, y }))

@@ -57,9 +57,9 @@ fn should_start_over_once_the_key_is_released() {
     repeat.tick(false, millis(16));
 
     repeat.tick(true, millis(16));
-    let step_on_press = repeat.steps_due();
+    let step_on_press: u32 = repeat.steps_due();
     repeat.tick(true, millis(280));
-    let steps_before_delay = repeat.steps_due();
+    let steps_before_delay: u32 = repeat.steps_due();
 
     assert_eq!((1, 0), (step_on_press, steps_before_delay));
 }

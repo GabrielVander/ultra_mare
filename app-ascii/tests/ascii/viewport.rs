@@ -18,7 +18,7 @@ fn should_pan_one_tile_in_the_given_direction() {
     ]
     .into_iter()
     .for_each(|(direction, expected_origin)| {
-        let mut viewport = viewport_at(MapPosition { x: 3, y: 3 });
+        let mut viewport: Viewport = viewport_at(MapPosition { x: 3, y: 3 });
 
         viewport.pan(direction);
 
@@ -38,7 +38,7 @@ fn should_not_pan_past_the_edges_of_the_map() {
     ]
     .into_iter()
     .for_each(|(origin, direction)| {
-        let mut viewport = viewport_at(origin);
+        let mut viewport: Viewport = viewport_at(origin);
 
         viewport.pan(direction);
 
@@ -58,7 +58,7 @@ fn should_stay_at_the_top_left_when_the_whole_map_fits() {
 
 #[test]
 fn should_pull_back_inside_the_map_when_resized() {
-    let mut viewport = viewport_at(MapPosition { x: 15, y: 6 });
+    let mut viewport: Viewport = viewport_at(MapPosition { x: 15, y: 6 });
 
     viewport.resize(8, 6);
 
@@ -86,7 +86,7 @@ fn should_stay_put_when_keeping_an_already_visible_position_in_view() {
     ]
     .into_iter()
     .for_each(|position| {
-        let mut viewport = viewport_at(origin);
+        let mut viewport: Viewport = viewport_at(origin);
 
         viewport.keep_in_view(position);
 
@@ -103,7 +103,7 @@ fn should_pan_just_enough_to_show_a_position_right_of_or_below_it() {
     ]
     .into_iter()
     .for_each(|(position, expected_origin)| {
-        let mut viewport = viewport_at(MapPosition { x: 3, y: 2 });
+        let mut viewport: Viewport = viewport_at(MapPosition { x: 3, y: 2 });
 
         viewport.keep_in_view(position);
 
@@ -120,7 +120,7 @@ fn should_pan_just_enough_to_show_a_position_left_of_or_above_it() {
     ]
     .into_iter()
     .for_each(|(position, expected_origin)| {
-        let mut viewport = viewport_at(MapPosition { x: 7, y: 6 });
+        let mut viewport: Viewport = viewport_at(MapPosition { x: 7, y: 6 });
 
         viewport.keep_in_view(position);
 
@@ -130,7 +130,7 @@ fn should_pan_just_enough_to_show_a_position_left_of_or_above_it() {
 
 #[test]
 fn should_not_pan_past_the_edges_of_the_map_to_keep_a_position_in_view() {
-    let mut viewport = viewport_at(MapPosition { x: 3, y: 2 });
+    let mut viewport: Viewport = viewport_at(MapPosition { x: 3, y: 2 });
 
     viewport.keep_in_view(MapPosition { x: 25, y: 30 });
 
