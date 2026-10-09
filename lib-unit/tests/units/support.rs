@@ -5,8 +5,12 @@ pub struct TerrainGrid(pub &'static [&'static str]);
 
 impl TerrainGrid {
     pub fn tiles(&self) -> Vec<(TilePosition, TerrainType)> {
-        (0..self.0.len() as u32)
-            .flat_map(|y| (0..self.0[y as usize].len() as u32).map(move |x| TilePosition { x, y }))
+        (0..self.0.len())
+            .flat_map(|y| (0..self.0[y].len()).map(move |x| (x, y)))
+            .map(|(x, y)| TilePosition {
+                x: u32::try_from(x).unwrap(),
+                y: u32::try_from(y).unwrap(),
+            })
             .filter_map(|position| self.terrain_at(position).map(|terrain| (position, terrain)))
             .collect()
     }

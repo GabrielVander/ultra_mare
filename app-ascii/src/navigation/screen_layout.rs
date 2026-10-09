@@ -11,6 +11,11 @@ pub struct ScreenLayout {
 impl ScreenLayout {
     /// How many whole tiles fit in the window beside the legend, as `(columns, rows)`.
     #[must_use]
+    #[expect(
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss,
+        reason = "only whole tiles fit, and a window narrower than the legend fits none"
+    )]
     pub fn viewport_size(&self, window_width: f32, window_height: f32) -> (u32, u32) {
         let map_area_width = window_width - self.legend_width;
         (
@@ -39,6 +44,10 @@ impl ScreenLayout {
         (left + window_width / 2.0, top - window_height / 2.0)
     }
 
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "map coordinates stay far below the 2^24 that f32 holds exactly"
+    )]
     fn tile_top_left(&self, position: MapPosition) -> (f32, f32) {
         (
             position.x as f32 * self.tile_width,

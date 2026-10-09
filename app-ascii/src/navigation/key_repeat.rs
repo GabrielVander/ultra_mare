@@ -52,7 +52,10 @@ impl KeyRepeat {
     fn repeats_after(&self, held_for: Duration) -> u32 {
         match held_for.checked_sub(self.initial_delay) {
             None => 0,
-            Some(past_delay) => (past_delay.as_nanos() / self.interval.as_nanos()) as u32 + 1,
+            Some(past_delay) => {
+                let repeats: u128 = past_delay.as_nanos() / self.interval.as_nanos();
+                u32::try_from(repeats).unwrap_or(u32::MAX).saturating_add(1)
+            }
         }
     }
 }

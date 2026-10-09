@@ -30,6 +30,10 @@ impl NoiseSource for ValueNoise {
 }
 
 impl ValueNoise {
+    #[expect(
+        clippy::cast_precision_loss,
+        reason = "map coordinates stay far below the 2^24 that f32 holds exactly"
+    )]
     fn blended_value(&self, position: MapPosition) -> f32 {
         let feature_size = self.feature_size.get();
         let (cell_x, cell_y) = (position.x / feature_size, position.y / feature_size);
@@ -72,6 +76,7 @@ fn mix(value: u64) -> u64 {
 }
 
 // The top 24 bits fill an `f32` mantissa exactly, so the result never rounds up to 1.
+#[expect(clippy::cast_precision_loss, reason = "24 bits convert to f32 exactly")]
 fn unit_interval(hash: u64) -> f32 {
     (hash >> 40) as f32 / (1u64 << 24) as f32
 }
