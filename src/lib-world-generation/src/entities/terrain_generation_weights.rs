@@ -2,6 +2,8 @@ use std::collections::HashSet;
 
 use lib_terrain::entities::terrain_type::TerrainType;
 
+use crate::entities::noise_value::NoiseValue;
+
 // Weights like 0.35 + 0.45 + 0.2 add up to 1.0 on paper but not in `f32`.
 const WEIGHT_SUM_TOLERANCE: f32 = 1e-6;
 
@@ -14,30 +16,33 @@ pub(crate) enum TerrainGenerationWeightsError {
 
 #[derive(Debug)]
 pub(crate) struct TerrainGenerationWeights {
-    weights: Vec<(TerrainType, f32)>,
+    bands: Vec<TerrainBand>,
+}
+
+#[derive(Debug)]
+struct TerrainBand {
+    terrain: TerrainType,
+    upper_bound: f32,
 }
 
 impl TerrainGenerationWeights {
     pub fn new(weights: &[(TerrainType, f32)]) -> Result<Self, TerrainGenerationWeightsError> {
         TerrainGenerationWeights::ensure_no_duplicate_terrain(weights)?;
         TerrainGenerationWeights::ensure_every_weight_is_valid(weights)?;
-
-        let sum: f32 = weights.iter().map(|(_, weight)| weight).sum();
-        if (sum - 1.0).abs() > WEIGHT_SUM_TOLERANCE {
-            return Err(TerrainGenerationWeightsError::WeightsDoNotSumToOne);
-        }
+        TerrainGenerationWeights::ensure_weights_sum_to_one(weights)?;
 
         Ok(Self {
-            weights: weights.to_vec(),
+            bands: TerrainGenerationWeights::build_bands(weights),
         })
     }
 
-    pub fn get_terrain_from_given_noise_value(&self, value: &f32) -> TerrainType {
-        self.weights
+    pub fn terrain_for(&self, noise: NoiseValue) -> TerrainType {
+        self.bands
             .iter()
-            .find(|(_, weight)| weight == value)
-            .unwrap()
-            .0
+            .find(|band| noise.value() < band.upper_bound)
+            .or(self.bands.last())
+            .expect("weights summing to one always leave at least one band")
+            .terrain
     }
 
     fn ensure_no_duplicate_terrain(
@@ -65,6 +70,32 @@ impl TerrainGenerationWeights {
     fn is_valid_weight(weight: f32) -> bool {
         weight.is_finite() && weight >= 0.0
     }
+
+    fn ensure_weights_sum_to_one(
+        weights: &[(TerrainType, f32)],
+    ) -> Result<(), TerrainGenerationWeightsError> {
+        let sum: f32 = weights.iter().map(|(_, weight)| weight).sum();
+        if (sum - 1.0).abs() > WEIGHT_SUM_TOLERANCE {
+            return Err(TerrainGenerationWeightsError::WeightsDoNotSumToOne);
+        }
+        Ok(())
+    }
+
+    // A terrain without weight would get an empty band; leaving it out keeps the
+    // fallback to the last band for noise at the very top of the range correct.
+    fn build_bands(weights: &[(TerrainType, f32)]) -> Vec<TerrainBand> {
+        weights
+            .iter()
+            .filter(|(_, weight)| *weight > 0.0)
+            .scan(0.0, |upper_bound, (terrain, weight)| {
+                *upper_bound += weight;
+                Some(TerrainBand {
+                    terrain: *terrain,
+                    upper_bound: *upper_bound,
+                })
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]
@@ -72,6 +103,11 @@ mod test {
     use lib_terrain::entities::terrain_type::TerrainType;
 
     use super::{TerrainGenerationWeights, TerrainGenerationWeightsError};
+    use crate::entities::noise_value::NoiseValue;
+
+    fn noise(value: f32) -> NoiseValue {
+        NoiseValue::new(value).unwrap()
+    }
 
     #[test]
     fn should_fail_when_given_weights_that_dont_add_up_to_100_percent() {
@@ -247,21 +283,117 @@ mod test {
     }
 
     #[test]
-    fn should_return_terrain_when_given_only_one() {
-        let raw_weights = Vec::from([
+    fn should_pick_the_only_terrain_for_any_noise_value() {
+        let weights = TerrainGenerationWeights::new(&[(TerrainType::Sea, 1.0)]).unwrap();
+
+        [0.0, 0.25, 0.5, 0.75, 1.0].into_iter().for_each(|value| {
+            assert_eq!(
+                TerrainType::Sea,
+                weights.terrain_for(noise(value)),
+                "{}",
+                value
+            )
+        });
+    }
+
+    #[test]
+    fn should_pick_the_band_containing_the_noise_value_with_boundaries_in_the_upper_band() {
+        let weights =
+            TerrainGenerationWeights::new(&[(TerrainType::Plains, 0.5), (TerrainType::Sea, 0.5)])
+                .unwrap();
+
+        [
+            (0.0, TerrainType::Plains),
+            (0.49, TerrainType::Plains),
+            (0.5, TerrainType::Sea),
+            (0.75, TerrainType::Sea),
+        ]
+        .into_iter()
+        .for_each(|(value, expected_terrain)| {
+            assert_eq!(
+                expected_terrain,
+                weights.terrain_for(noise(value)),
+                "{}",
+                value
+            )
+        });
+    }
+
+    #[test]
+    fn should_pick_the_last_band_for_the_maximum_noise_value() {
+        let weight_inputs: Vec<Vec<(TerrainType, f32)>> = vec![
+            Vec::from([(TerrainType::Plains, 0.5), (TerrainType::Sea, 0.5)]),
+            Vec::from([
+                (TerrainType::Mountain, 0.35),
+                (TerrainType::Hills, 0.45),
+                (TerrainType::Sea, 0.2),
+            ]),
+        ];
+
+        weight_inputs.into_iter().for_each(|raw_weights| {
+            let weights = TerrainGenerationWeights::new(&raw_weights).unwrap();
+
+            assert_eq!(
+                TerrainType::Sea,
+                weights.terrain_for(noise(1.0)),
+                "{:?}",
+                raw_weights
+            )
+        });
+    }
+
+    #[test]
+    fn should_never_pick_a_terrain_without_weight() {
+        let weight_inputs: Vec<Vec<(TerrainType, f32)>> = vec![
+            Vec::from([(TerrainType::Mountain, 0.0), (TerrainType::Sea, 1.0)]),
+            Vec::from([
+                (TerrainType::Plains, 0.5),
+                (TerrainType::Mountain, 0.0),
+                (TerrainType::Sea, 0.5),
+            ]),
+            Vec::from([(TerrainType::Sea, 1.0), (TerrainType::Mountain, 0.0)]),
+        ];
+
+        weight_inputs.into_iter().for_each(|raw_weights| {
+            let weights = TerrainGenerationWeights::new(&raw_weights).unwrap();
+
+            [0.0, 0.5, 1.0].into_iter().for_each(|value| {
+                assert_ne!(
+                    TerrainType::Mountain,
+                    weights.terrain_for(noise(value)),
+                    "{:?} at {}",
+                    raw_weights,
+                    value
+                )
+            });
+        });
+    }
+
+    #[test]
+    fn should_pick_terrains_in_proportion_to_their_weights() {
+        let weights = TerrainGenerationWeights::new(&[
             (TerrainType::Mountain, 0.05),
             (TerrainType::Hills, 0.1),
             (TerrainType::Forest, 0.15),
             (TerrainType::Jungle, 0.3),
             (TerrainType::Plains, 0.4),
-        ]);
+        ])
+        .unwrap();
 
-        let weights = TerrainGenerationWeights::new(&raw_weights).unwrap();
-
-        raw_weights.iter().for_each(|(expected_terrain, weight)| {
+        [
+            (0.02, TerrainType::Mountain),
+            (0.1, TerrainType::Hills),
+            (0.2, TerrainType::Forest),
+            (0.45, TerrainType::Jungle),
+            (0.8, TerrainType::Plains),
+        ]
+        .into_iter()
+        .for_each(|(value, expected_terrain)| {
             assert_eq!(
                 expected_terrain,
-                &weights.get_terrain_from_given_noise_value(weight)
+                weights.terrain_for(noise(value)),
+                "{}",
+                value
             )
         });
     }
