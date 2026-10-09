@@ -12,5 +12,13 @@ pub fn unit_glyph(unit_type: UnitType) -> Glyph {
                 blue: 255,
             },
         },
+        UnitType::Caravel => Glyph {
+            symbol: 'V',
+            color: Rgb {
+                red: 205,
+                green: 133,
+                blue: 63,
+            },
+        },
     }
 }

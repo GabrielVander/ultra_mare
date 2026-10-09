@@ -19,6 +19,10 @@ pub fn colonist_at(position: TilePosition) -> Unit {
     Unit::land(UnitType::Colonist, [(position, TerrainType::Plains)]).unwrap()
 }
 
+pub fn caravel_at(position: TilePosition) -> Unit {
+    Unit::land(UnitType::Caravel, [(position, TerrainType::Sea)]).unwrap()
+}
+
 /// Land everywhere, so only the limits of a tile position end the map.
 pub struct EndlessLand;
 

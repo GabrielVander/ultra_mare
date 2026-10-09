@@ -28,7 +28,10 @@ pub struct ControlHint {
 pub fn present_legend() -> LegendViewModel {
     LegendViewModel {
         terrains: TerrainType::ALL.into_iter().map(terrain_entry).collect(),
-        units: vec![unit_entry(UnitType::Colonist)],
+        units: vec![
+            unit_entry(UnitType::Colonist),
+            unit_entry(UnitType::Caravel),
+        ],
         controls: vec![
             control_hint("WASD", "Move colonist"),
             control_hint("Arrows", "Pan view"),
@@ -65,6 +68,7 @@ fn unit_entry(unit_type: UnitType) -> LegendEntry {
 fn unit_name(unit_type: UnitType) -> &'static str {
     match unit_type {
         UnitType::Colonist => "Colonist",
+        UnitType::Caravel => "Caravel",
     }
 }
 

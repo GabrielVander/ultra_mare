@@ -34,7 +34,10 @@ fn should_name_every_unit_next_to_its_map_glyph() {
         .map(|entry| (entry.glyph, entry.label.as_str()))
         .collect();
     assert_eq!(
-        vec![(unit_glyph(UnitType::Colonist), "Colonist")],
+        vec![
+            (unit_glyph(UnitType::Colonist), "Colonist"),
+            (unit_glyph(UnitType::Caravel), "Caravel"),
+        ],
         entries
     );
 }

@@ -1,7 +1,7 @@
 use lib_terrain::TerrainType;
 use lib_unit::{Direction, MoveError, TilePosition};
 
-use crate::support::{EndlessLand, TerrainGrid, colonist_at};
+use crate::support::{EndlessLand, TerrainGrid, caravel_at, colonist_at};
 
 const OPEN_LAND: TerrainGrid = TerrainGrid(&["...", "...", "..."]);
 
@@ -91,4 +91,26 @@ fn should_not_walk_past_the_last_representable_tile() {
             assert_eq!(Err(MoveError::OffMap), moved, "{direction:?}");
             assert_eq!(last, unit.position(), "{direction:?}");
         });
+}
+
+#[test]
+fn should_sail_a_caravel_across_the_sea() {
+    let open_sea = TerrainGrid(&["~~"]);
+    let mut unit = caravel_at(TilePosition { x: 0, y: 0 });
+
+    let moved = unit.move_toward(Direction::East, &open_sea);
+
+    assert_eq!(Ok(()), moved);
+    assert_eq!(TilePosition { x: 1, y: 0 }, unit.position());
+}
+
+#[test]
+fn should_not_sail_a_caravel_onto_land() {
+    let shore = TerrainGrid(&["~."]);
+    let mut unit = caravel_at(TilePosition { x: 0, y: 0 });
+
+    let moved = unit.move_toward(Direction::East, &shore);
+
+    assert_eq!(Err(MoveError::Impassable(TerrainType::Plains)), moved);
+    assert_eq!(TilePosition { x: 0, y: 0 }, unit.position());
 }
