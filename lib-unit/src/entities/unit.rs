@@ -32,7 +32,10 @@ impl Unit {
         direction: Direction,
         map: &impl MapTerrain,
     ) -> Result<(), MoveError> {
-        let destination = self.neighbour(direction).ok_or(MoveError::OffMap)?;
+        let destination = self
+            .position
+            .neighbour(direction)
+            .ok_or(MoveError::OffMap)?;
         let terrain = map.terrain_at(destination).ok_or(MoveError::OffMap)?;
         if !self.unit_type.can_enter(terrain) {
             return Err(MoveError::Impassable(terrain));
@@ -47,27 +50,5 @@ impl Unit {
 
     pub fn position(&self) -> TilePosition {
         self.position
-    }
-
-    fn neighbour(&self, direction: Direction) -> Option<TilePosition> {
-        let TilePosition { x, y } = self.position;
-        Some(match direction {
-            Direction::North => TilePosition {
-                x,
-                y: y.checked_sub(1)?,
-            },
-            Direction::South => TilePosition {
-                x,
-                y: y.checked_add(1)?,
-            },
-            Direction::East => TilePosition {
-                x: x.checked_add(1)?,
-                y,
-            },
-            Direction::West => TilePosition {
-                x: x.checked_sub(1)?,
-                y,
-            },
-        })
     }
 }
