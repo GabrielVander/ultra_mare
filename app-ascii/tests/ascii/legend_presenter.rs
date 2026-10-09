@@ -22,3 +22,15 @@ fn should_name_every_terrain_next_to_its_map_glyph() {
         entries
     );
 }
+
+#[test]
+fn should_list_the_controls() {
+    let legend = present_legend();
+
+    let controls: Vec<_> = legend
+        .controls
+        .iter()
+        .map(|control| (control.keys.as_str(), control.action.as_str()))
+        .collect();
+    assert_eq!(vec![("Arrows/WASD", "Move"), ("R", "New map")], controls);
+}
