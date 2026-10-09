@@ -73,7 +73,7 @@ fn should_succeed_when_given_weights_that_add_up_to_100_percent() {
 
 #[test]
 fn should_succeed_when_weights_add_up_to_100_percent_except_for_float_rounding() {
-    let weights = Vec::from([
+    let weights: Vec<(TerrainType, f32)> = Vec::from([
         (TerrainType::Mountain, 0.35),
         (TerrainType::Hills, 0.45),
         (TerrainType::Forest, 0.2),

@@ -18,7 +18,7 @@ impl WorldMap {
         weights: &TerrainGenerationWeights,
         noise: &impl NoiseSource,
     ) -> Self {
-        let tiles = WorldMap::positions(size)
+        let tiles: Vec<MapTile> = WorldMap::positions(size)
             .map(|position| MapTile::generate_from_noise_value(weights, noise.noise_at(position)))
             .collect();
 

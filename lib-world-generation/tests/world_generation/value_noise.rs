@@ -22,10 +22,10 @@ fn should_give_different_noise_for_different_seeds() {
 
 #[test]
 fn should_vary_across_the_map() {
-    let values = sample(&ValueNoise::new(42, FEATURE_SIZE));
+    let values: Vec<f32> = sample(&ValueNoise::new(42, FEATURE_SIZE));
 
-    let lowest = values.iter().copied().fold(f32::INFINITY, f32::min);
-    let highest = values.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+    let lowest: f32 = values.iter().copied().fold(f32::INFINITY, f32::min);
+    let highest: f32 = values.iter().copied().fold(f32::NEG_INFINITY, f32::max);
     assert!(highest - lowest > 0.5, "{lowest}..{highest}");
 }
 
@@ -36,7 +36,7 @@ fn should_change_gradually_between_neighbouring_tiles() {
 
     (0..32).for_each(|y| {
         (0..32).for_each(|x| {
-            let here = value_at(x, y);
+            let here: f32 = value_at(x, y);
             [value_at(x + 1, y), value_at(x, y + 1)]
                 .into_iter()
                 .for_each(|neighbour| {

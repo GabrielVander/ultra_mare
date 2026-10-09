@@ -26,7 +26,7 @@ fn should_give_each_tile_the_terrain_of_the_noise_at_its_position() {
 
     (0..size.height()).for_each(|y| {
         (0..size.width()).for_each(|x| {
-            let expected_terrain = if x % 2 == 1 {
+            let expected_terrain: TerrainType = if x % 2 == 1 {
                 TerrainType::Plains
             } else {
                 TerrainType::Sea
