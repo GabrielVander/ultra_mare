@@ -3,8 +3,8 @@ use lib_terrain::TerrainType;
 use lib_unit::UnitType;
 
 #[test]
-fn should_show_a_free_colonist_as_an_at_sign_unlike_any_terrain() {
-    let glyph = unit_glyph(UnitType::FreeColonist);
+fn should_show_a_colonist_as_an_at_sign_unlike_any_terrain() {
+    let glyph = unit_glyph(UnitType::Colonist);
 
     assert_eq!('@', glyph.symbol);
     TerrainType::ALL.into_iter().for_each(|terrain| {

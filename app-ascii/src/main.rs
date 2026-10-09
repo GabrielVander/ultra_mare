@@ -179,7 +179,7 @@ fn new_key_repeat() -> KeyRepeat {
 
 fn populate_world(commands: &mut Commands, world: WorldMap) {
     spawn_tiles(commands, &world);
-    let colonist = Unit::land(UnitType::FreeColonist, WorldTerrain::new(&world).tiles());
+    let colonist = Unit::land(UnitType::Colonist, WorldTerrain::new(&world).tiles());
     if let Some(unit) = &colonist {
         commands.spawn(colonist_glyph(unit));
     }

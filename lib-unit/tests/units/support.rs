@@ -16,7 +16,7 @@ impl MapTerrain for TerrainGrid {
 }
 
 pub fn colonist_at(position: TilePosition) -> Unit {
-    Unit::land(UnitType::FreeColonist, [(position, TerrainType::Plains)]).unwrap()
+    Unit::land(UnitType::Colonist, [(position, TerrainType::Plains)]).unwrap()
 }
 
 /// Land everywhere, so only the limits of a tile position end the map.
