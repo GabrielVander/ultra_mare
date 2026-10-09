@@ -1,11 +1,6 @@
-use std::{
-    cmp::Reverse,
-    collections::{BinaryHeap, HashSet},
-    iter,
-};
+use std::collections::HashSet;
 
 use lib_terrain::entities::terrain_type::TerrainType;
-use ordered_float::OrderedFloat;
 
 // Weights like 0.35 + 0.45 + 0.2 add up to 1.0 on paper but not in `f32`.
 const WEIGHT_SUM_TOLERANCE: f32 = 1e-6;
@@ -19,7 +14,7 @@ pub(crate) enum TerrainGenerationWeightsError {
 
 #[derive(Debug)]
 pub(crate) struct TerrainGenerationWeights {
-    weights_min_heap: BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>>,
+    weights: Vec<(TerrainType, f32)>,
 }
 
 impl TerrainGenerationWeights {
@@ -27,25 +22,21 @@ impl TerrainGenerationWeights {
         TerrainGenerationWeights::ensure_no_duplicate_terrain(weights)?;
         TerrainGenerationWeights::ensure_every_weight_is_valid(weights)?;
 
-        let min_heap: BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>> =
-            TerrainGenerationWeights::build_min_heap_with_given_weights(weights);
-
-        let sum: f32 = TerrainGenerationWeights::get_min_heap_sum(&min_heap);
+        let sum: f32 = weights.iter().map(|(_, weight)| weight).sum();
         if (sum - 1.0).abs() > WEIGHT_SUM_TOLERANCE {
             return Err(TerrainGenerationWeightsError::WeightsDoNotSumToOne);
         }
 
         Ok(Self {
-            weights_min_heap: min_heap,
+            weights: weights.to_vec(),
         })
     }
 
     pub fn get_terrain_from_given_noise_value(&self, value: &f32) -> TerrainType {
-        self.weights_min_heap
+        self.weights
             .iter()
-            .find(|weight| weight.0.1 == *value)
+            .find(|(_, weight)| weight == value)
             .unwrap()
-            .0
             .0
     }
 
@@ -73,20 +64,6 @@ impl TerrainGenerationWeights {
 
     fn is_valid_weight(weight: f32) -> bool {
         weight.is_finite() && weight >= 0.0
-    }
-
-    fn build_min_heap_with_given_weights(
-        weights: &[(TerrainType, f32)],
-    ) -> BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>> {
-        let min_heap: BinaryHeap<_> = weights
-            .iter()
-            .map(|(k, v)| Reverse((*k, OrderedFloat(*v))))
-            .collect();
-        min_heap
-    }
-
-    fn get_min_heap_sum(min_heap: &BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>>) -> f32 {
-        min_heap.iter().map(|e| e.0.1.0).sum()
     }
 }
 
