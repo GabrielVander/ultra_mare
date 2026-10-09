@@ -7,3 +7,14 @@ pub enum TerrainType {
     Plains,
     Sea,
 }
+
+impl TerrainType {
+    pub const ALL: [TerrainType; 6] = [
+        TerrainType::Mountain,
+        TerrainType::Hills,
+        TerrainType::Forest,
+        TerrainType::Jungle,
+        TerrainType::Plains,
+        TerrainType::Sea,
+    ];
+}
