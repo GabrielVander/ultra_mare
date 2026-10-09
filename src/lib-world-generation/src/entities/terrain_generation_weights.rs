@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use lib_terrain::entities::terrain_type::TerrainType;
+use lib_terrain::TerrainType;
 
 use crate::entities::noise_value::NoiseValue;
 
@@ -100,7 +100,7 @@ impl TerrainGenerationWeights {
 
 #[cfg(test)]
 mod test {
-    use lib_terrain::entities::terrain_type::TerrainType;
+    use lib_terrain::TerrainType;
 
     use super::{TerrainGenerationWeights, TerrainGenerationWeightsError};
     use crate::entities::noise_value::NoiseValue;

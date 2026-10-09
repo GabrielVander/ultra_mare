@@ -1,1 +1,1 @@
-pub mod terrain_type;
+pub(crate) mod terrain_type;

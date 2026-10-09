@@ -1,4 +1,4 @@
-use lib_terrain::entities::terrain_type::TerrainType;
+use lib_terrain::TerrainType;
 
 use crate::entities::{
     noise_value::NoiseValue, terrain_generation_weights::TerrainGenerationWeights,
@@ -19,7 +19,7 @@ impl MapTile {
 
 #[cfg(test)]
 mod test {
-    use lib_terrain::entities::terrain_type::TerrainType;
+    use lib_terrain::TerrainType;
 
     use crate::entities::{
         map_tile::MapTile, noise_value::NoiseValue,
