@@ -76,6 +76,67 @@ fn should_pan_within_its_new_size_after_a_resize() {
     assert_eq!(MapPosition { x: 2, y: 1 }, viewport.origin());
 }
 
+#[test]
+fn should_stay_put_when_keeping_an_already_visible_position_in_view() {
+    let origin = MapPosition { x: 3, y: 2 };
+    [
+        MapPosition { x: 3, y: 2 },
+        MapPosition { x: 7, y: 5 },
+        MapPosition { x: 5, y: 3 },
+    ]
+    .into_iter()
+    .for_each(|position| {
+        let mut viewport = viewport_at(origin);
+
+        viewport.keep_in_view(position);
+
+        assert_eq!(origin, viewport.origin(), "{position:?}");
+    });
+}
+
+#[test]
+fn should_pan_just_enough_to_show_a_position_right_of_or_below_it() {
+    [
+        (MapPosition { x: 8, y: 3 }, MapPosition { x: 4, y: 2 }),
+        (MapPosition { x: 5, y: 7 }, MapPosition { x: 3, y: 4 }),
+        (MapPosition { x: 12, y: 9 }, MapPosition { x: 8, y: 6 }),
+    ]
+    .into_iter()
+    .for_each(|(position, expected_origin)| {
+        let mut viewport = viewport_at(MapPosition { x: 3, y: 2 });
+
+        viewport.keep_in_view(position);
+
+        assert_eq!(expected_origin, viewport.origin(), "{position:?}");
+    });
+}
+
+#[test]
+fn should_pan_just_enough_to_show_a_position_left_of_or_above_it() {
+    [
+        (MapPosition { x: 1, y: 6 }, MapPosition { x: 1, y: 6 }),
+        (MapPosition { x: 9, y: 2 }, MapPosition { x: 7, y: 2 }),
+        (MapPosition { x: 0, y: 0 }, MapPosition { x: 0, y: 0 }),
+    ]
+    .into_iter()
+    .for_each(|(position, expected_origin)| {
+        let mut viewport = viewport_at(MapPosition { x: 7, y: 6 });
+
+        viewport.keep_in_view(position);
+
+        assert_eq!(expected_origin, viewport.origin(), "{position:?}");
+    });
+}
+
+#[test]
+fn should_not_pan_past_the_edges_of_the_map_to_keep_a_position_in_view() {
+    let mut viewport = viewport_at(MapPosition { x: 3, y: 2 });
+
+    viewport.keep_in_view(MapPosition { x: 25, y: 30 });
+
+    assert_eq!(MapPosition { x: 15, y: 6 }, viewport.origin());
+}
+
 fn viewport_at(origin: MapPosition) -> Viewport {
     let mut viewport = Viewport::new(map_size(20, 10), 5, 4);
     (0..origin.x).for_each(|_| viewport.pan(PanDirection::Right));
