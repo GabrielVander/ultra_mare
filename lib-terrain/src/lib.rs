@@ -1,3 +1,3 @@
 mod entities;
 
-pub use entities::terrain_type::TerrainType;
+pub use entities::{goods_type::GoodsType, terrain_type::TerrainType};
