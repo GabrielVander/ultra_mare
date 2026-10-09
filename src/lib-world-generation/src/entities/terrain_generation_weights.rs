@@ -10,6 +10,7 @@ use ordered_float::OrderedFloat;
 #[derive(Debug, PartialEq)]
 pub(crate) enum TerrainGenerationWeightsError {
     WeightsDoNotSumToOne,
+    DuplicateTerrain(TerrainType),
 }
 
 #[derive(Debug)]
@@ -19,6 +20,8 @@ pub(crate) struct TerrainGenerationWeights {
 
 impl TerrainGenerationWeights {
     pub fn new(weights: &[(TerrainType, f32)]) -> Result<Self, TerrainGenerationWeightsError> {
+        TerrainGenerationWeights::ensure_no_duplicate_terrain(weights)?;
+
         let min_heap: BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>> =
             TerrainGenerationWeights::build_min_heap_with_given_weights(weights);
 
@@ -41,13 +44,21 @@ impl TerrainGenerationWeights {
             .0
     }
 
+    fn ensure_no_duplicate_terrain(
+        weights: &[(TerrainType, f32)],
+    ) -> Result<(), TerrainGenerationWeightsError> {
+        let mut seen: HashSet<TerrainType> = HashSet::new();
+        match weights.iter().find(|(terrain, _)| !seen.insert(*terrain)) {
+            Some((terrain, _)) => Err(TerrainGenerationWeightsError::DuplicateTerrain(*terrain)),
+            None => Ok(()),
+        }
+    }
+
     fn build_min_heap_with_given_weights(
         weights: &[(TerrainType, f32)],
     ) -> BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>> {
-        let mut seen: HashSet<&TerrainType> = HashSet::new();
         let min_heap: BinaryHeap<_> = weights
             .iter()
-            .filter(|(k, _)| seen.insert(k))
             .map(|(k, v)| Reverse((*k, OrderedFloat(*v))))
             .collect();
         min_heap
@@ -81,19 +92,7 @@ mod test {
                 (TerrainType::Forest, 0.3),
             ]),
             Vec::from([
-                (TerrainType::Mountain, 0.3),
-                (TerrainType::Hills, 0.3),
-                (TerrainType::Hills, 0.4),
-                (TerrainType::Forest, 0.3),
-            ]),
-            Vec::from([
                 (TerrainType::Mountain, 1.0),
-                (TerrainType::Hills, 0.0),
-                (TerrainType::Forest, 0.1),
-            ]),
-            Vec::from([
-                (TerrainType::Mountain, 1.0),
-                (TerrainType::Mountain, 0.9),
                 (TerrainType::Hills, 0.0),
                 (TerrainType::Forest, 0.1),
             ]),
@@ -102,18 +101,6 @@ mod test {
                 (TerrainType::Hills, 0.21),
                 (TerrainType::Forest, 0.21),
                 (TerrainType::Jungle, 0.21),
-                (TerrainType::Plains, 0.21),
-            ]),
-            Vec::from([
-                (TerrainType::Mountain, 0.2),
-                (TerrainType::Mountain, 0.21),
-                (TerrainType::Hills, 0.21),
-                (TerrainType::Hills, 0.2),
-                (TerrainType::Forest, 0.2),
-                (TerrainType::Forest, 0.21),
-                (TerrainType::Jungle, 0.2),
-                (TerrainType::Jungle, 0.21),
-                (TerrainType::Plains, 0.2),
                 (TerrainType::Plains, 0.21),
             ]),
         ];
@@ -144,13 +131,6 @@ mod test {
                 (TerrainType::Jungle, 0.1),
             ]),
             Vec::from([
-                (TerrainType::Mountain, 0.3),
-                (TerrainType::Hills, 0.3),
-                (TerrainType::Hills, 0.6),
-                (TerrainType::Forest, 0.3),
-                (TerrainType::Jungle, 0.1),
-            ]),
-            Vec::from([
                 (TerrainType::Mountain, 0.2),
                 (TerrainType::Hills, 0.2),
                 (TerrainType::Forest, 0.2),
@@ -162,6 +142,56 @@ mod test {
         weight_inputs.into_iter().for_each(|weights| {
             assert_eq!(Ok(()), TerrainGenerationWeights::new(&weights).map(|_| ()))
         });
+    }
+
+    #[test]
+    fn should_fail_when_given_the_same_terrain_more_than_once() {
+        let weight_inputs: Vec<(Vec<(TerrainType, f32)>, TerrainType)> = vec![
+            (
+                Vec::from([(TerrainType::Mountain, 0.5), (TerrainType::Mountain, 0.5)]),
+                TerrainType::Mountain,
+            ),
+            (
+                Vec::from([
+                    (TerrainType::Mountain, 0.3),
+                    (TerrainType::Hills, 0.3),
+                    (TerrainType::Hills, 0.4),
+                ]),
+                TerrainType::Hills,
+            ),
+            (
+                Vec::from([
+                    (TerrainType::Mountain, 0.3),
+                    (TerrainType::Hills, 0.3),
+                    (TerrainType::Hills, 0.6),
+                    (TerrainType::Forest, 0.3),
+                    (TerrainType::Jungle, 0.1),
+                ]),
+                TerrainType::Hills,
+            ),
+            (
+                Vec::from([
+                    (TerrainType::Mountain, 1.0),
+                    (TerrainType::Mountain, 0.9),
+                    (TerrainType::Hills, 0.0),
+                    (TerrainType::Forest, 0.1),
+                ]),
+                TerrainType::Mountain,
+            ),
+        ];
+
+        weight_inputs
+            .into_iter()
+            .for_each(|(weights, duplicated_terrain)| {
+                assert_eq!(
+                    Err(TerrainGenerationWeightsError::DuplicateTerrain(
+                        duplicated_terrain
+                    )),
+                    TerrainGenerationWeights::new(&weights).map(|_| ()),
+                    "{:?}",
+                    weights
+                )
+            });
     }
 
     #[test]
