@@ -1,3 +1,4 @@
 mod entities;
+mod production;
 
-pub use entities::{goods_type::GoodsType, terrain_type::TerrainType};
+pub use entities::{goods_type::GoodsType, production::Production, terrain_type::TerrainType};
