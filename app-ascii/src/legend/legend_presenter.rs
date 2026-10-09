@@ -2,6 +2,7 @@ use lib_terrain::TerrainType;
 use lib_unit::UnitType;
 
 use crate::{
+    colonies::colony_glyph::colony_glyph,
     map_view::terrain_glyph::{Glyph, glyph_for},
     units::unit_glyph::unit_glyph,
 };
@@ -10,6 +11,7 @@ use crate::{
 pub struct LegendViewModel {
     pub terrains: Vec<LegendEntry>,
     pub units: Vec<LegendEntry>,
+    pub colonies: Vec<LegendEntry>,
     pub controls: Vec<ControlHint>,
 }
 
@@ -32,6 +34,10 @@ pub fn present_legend() -> LegendViewModel {
             unit_entry(UnitType::Colonist),
             unit_entry(UnitType::Caravel),
         ],
+        colonies: vec![LegendEntry {
+            glyph: colony_glyph(),
+            label: "Colony".to_string(),
+        }],
         controls: vec![
             control_hint("WASD", "Move unit"),
             control_hint("Tab", "Switch unit"),

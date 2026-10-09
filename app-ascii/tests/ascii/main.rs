@@ -1,4 +1,6 @@
 mod active_unit;
+mod colony_glyph;
+mod colony_presenter;
 mod key_repeat;
 mod legend_presenter;
 mod map_presenter;

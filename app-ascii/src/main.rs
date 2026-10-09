@@ -1,9 +1,9 @@
 use std::time::Duration;
 
 use app_ascii::{
-    ActiveUnit, ControlHint, Glyph, KeyRepeat, LegendEntry, PanDirection, Rgb, ScreenLayout,
-    UnitMarker, Viewport, WorldTerrain, generate_world, map_position, present_legend, present_map,
-    present_units,
+    ActiveUnit, ColonyMarker, ControlHint, Glyph, KeyRepeat, LegendEntry, PanDirection, Rgb,
+    ScreenLayout, UnitMarker, Viewport, WorldTerrain, generate_world, map_position,
+    present_colonies, present_legend, present_map, present_units,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
 use lib_colony::Colonies;
@@ -20,6 +20,7 @@ const LEGEND_FONT_SIZE: f32 = 16.0;
 const LEGEND_BACKGROUND: Color = Color::srgb(0.08, 0.08, 0.1);
 const LEGEND_TEXT: Color = Color::srgb(0.85, 0.85, 0.85);
 const ACTIVE_UNIT_BACKGROUND: Color = Color::srgb(0.55, 0.12, 0.12);
+const COLONY_BACKGROUND: Color = Color::srgb(0.1, 0.1, 0.12);
 const IDLE_UNIT_BACKGROUND: Color = Color::srgb(0.25, 0.25, 0.3);
 const KEY_REPEAT_DELAY: Duration = Duration::from_millis(250);
 const KEY_REPEAT_INTERVAL: Duration = Duration::from_millis(40);
@@ -60,6 +61,7 @@ fn main() {
                 found_colony,
                 follow_active_unit,
                 pan_viewport,
+                draw_colonies,
                 draw_units,
                 aim_camera,
             )
@@ -97,6 +99,9 @@ struct MapGlyph;
 #[derive(Component)]
 struct UnitGlyph;
 
+#[derive(Component)]
+struct ColonyGlyph;
+
 fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera2d);
 }
@@ -126,6 +131,10 @@ fn spawn_legend(mut commands: Commands) {
             });
             panel.spawn(legend_text("\nUnits", LEGEND_TEXT));
             legend.units.iter().for_each(|entry| {
+                spawn_legend_entry(panel, entry);
+            });
+            panel.spawn(legend_text("\nColonies", LEGEND_TEXT));
+            legend.colonies.iter().for_each(|entry| {
                 spawn_legend_entry(panel, entry);
             });
             panel.spawn(legend_text("\nControls", LEGEND_TEXT));
@@ -311,6 +320,43 @@ fn pan_viewport(
 fn is_held(keys: &ButtonInput<KeyCode>, key: KeyCode) -> bool {
     // A tap released within the same frame is no longer pressed, yet must still move.
     keys.pressed(key) || keys.just_pressed(key)
+}
+
+fn draw_colonies(
+    mut commands: Commands,
+    settlements: Res<Settlements>,
+    glyphs: Query<Entity, With<ColonyGlyph>>,
+) {
+    if !settlements.is_changed() {
+        return;
+    }
+    glyphs
+        .iter()
+        .for_each(|glyph| commands.entity(glyph).despawn());
+    present_colonies(&settlements.0)
+        .into_iter()
+        .for_each(|marker| {
+            commands.spawn(colony_on_map(marker));
+        });
+}
+
+/// Drawn between the terrain and the units, so a unit visiting the colony shows on top.
+fn colony_on_map(marker: ColonyMarker) -> impl Bundle {
+    let (x, y) = LAYOUT.tile_translation(marker.position);
+    (
+        ColonyGlyph,
+        Sprite::from_color(
+            COLONY_BACKGROUND,
+            Vec2::new(LAYOUT.tile_width, LAYOUT.tile_height),
+        ),
+        Transform::from_xyz(x, y, 0.5),
+        children![(
+            Text2d::new(marker.glyph.symbol.to_string()),
+            TextFont::from_font_size(GLYPH_FONT_SIZE),
+            TextColor(color_of(marker.glyph.color)),
+            Transform::from_xyz(0.0, 0.0, 0.1),
+        )],
+    )
 }
 
 fn draw_units(mut commands: Commands, units: Res<Units>, glyphs: Query<Entity, With<UnitGlyph>>) {

@@ -1,4 +1,4 @@
-use app_ascii::{glyph_for, present_legend, unit_glyph};
+use app_ascii::{colony_glyph, glyph_for, present_legend, unit_glyph};
 use lib_terrain::TerrainType;
 use lib_unit::UnitType;
 
@@ -40,6 +40,18 @@ fn should_name_every_unit_next_to_its_map_glyph() {
         ],
         entries
     );
+}
+
+#[test]
+fn should_name_the_colony_next_to_its_map_glyph() {
+    let legend = present_legend();
+
+    let entries: Vec<_> = legend
+        .colonies
+        .iter()
+        .map(|entry| (entry.glyph, entry.label.as_str()))
+        .collect();
+    assert_eq!(vec![(colony_glyph(), "Colony")], entries);
 }
 
 #[test]

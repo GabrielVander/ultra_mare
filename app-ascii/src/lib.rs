@@ -1,9 +1,14 @@
+mod colonies;
 mod legend;
 mod map_view;
 mod navigation;
 mod units;
 mod world;
 
+pub use colonies::{
+    colony_glyph::colony_glyph,
+    colony_presenter::{ColonyMarker, present_colonies},
+};
 pub use legend::legend_presenter::{ControlHint, LegendEntry, LegendViewModel, present_legend};
 pub use map_view::{
     map_presenter::{MapViewModel, present_map},
