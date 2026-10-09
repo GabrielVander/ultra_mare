@@ -103,3 +103,58 @@ fn should_set_out_without_a_caravel_when_there_is_no_sea() {
     );
     assert_eq!(None, expedition.caravel_position());
 }
+
+#[test]
+fn should_settle_the_colonist_ashore_off_the_map() {
+    let shore = TerrainGrid(&["..~"]);
+    let mut expedition = Expedition::land(&shore.tiles());
+
+    let settler = expedition.settle_colonist().unwrap();
+
+    assert_eq!(UnitType::Colonist, settler.unit_type());
+    assert_eq!(TilePosition { x: 0, y: 0 }, settler.position());
+    let on_map: Vec<UnitType> = expedition
+        .units_on_map()
+        .map(|unit| unit.unit_type())
+        .collect();
+    assert_eq!(vec![UnitType::Caravel], on_map);
+}
+
+#[test]
+fn should_not_settle_the_colonist_while_it_is_aboard() {
+    let shore = TerrainGrid(&[".~"]);
+    let mut expedition = Expedition::land(&shore.tiles());
+    expedition.move_colonist(Direction::East, &shore);
+
+    let settler = expedition.settle_colonist();
+
+    assert_eq!(None, settler);
+    assert_eq!(
+        Some(TilePosition { x: 1, y: 0 }),
+        expedition.colonist_position()
+    );
+}
+
+#[test]
+fn should_tell_the_colonist_ashore_only_while_it_is_not_aboard() {
+    let shore = TerrainGrid(&[".~"]);
+    let mut expedition = Expedition::land(&shore.tiles());
+    let ashore = expedition.colonist_ashore().map(|unit| unit.position());
+
+    expedition.move_colonist(Direction::East, &shore);
+
+    assert_eq!(Some(TilePosition { x: 0, y: 0 }), ashore);
+    assert_eq!(None, expedition.colonist_ashore());
+}
+
+#[test]
+fn should_leave_no_colonist_to_order_once_it_settled() {
+    let shore = TerrainGrid(&["..~"]);
+    let mut expedition = Expedition::land(&shore.tiles());
+    expedition.settle_colonist();
+
+    expedition.move_colonist(Direction::East, &shore);
+
+    assert_eq!(None, expedition.colonist_position());
+    assert_eq!(None, expedition.settle_colonist());
+}

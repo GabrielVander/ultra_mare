@@ -39,6 +39,16 @@ impl Expedition {
         }
     }
 
+    /// The colonist standing on land, `None` while it is aboard the caravel.
+    pub fn colonist_ashore(&self) -> Option<&Unit> {
+        self.colonist.as_ref()
+    }
+
+    /// Takes the colonist off the map, for it to settle where it stands.
+    pub fn settle_colonist(&mut self) -> Option<Unit> {
+        self.colonist.take()
+    }
+
     /// The units standing on a tile of their own, not carried by another.
     pub fn units_on_map(&self) -> impl Iterator<Item = &Unit> {
         self.colonist.iter().chain(self.caravel.iter())
