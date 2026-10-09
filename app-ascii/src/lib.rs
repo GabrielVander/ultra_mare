@@ -15,7 +15,9 @@ pub use navigation::{
     viewport::{PanDirection, Viewport},
 };
 pub use units::{
+    active_unit::ActiveUnit,
     unit_glyph::unit_glyph,
+    unit_presenter::{UnitMarker, present_units},
     world_terrain::{WorldTerrain, map_position},
 };
 pub use world::world_settings::generate_world;
