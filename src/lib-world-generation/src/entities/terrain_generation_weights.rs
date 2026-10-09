@@ -7,19 +7,24 @@ use std::{
 use lib_terrain::entities::terrain_type::TerrainType;
 use ordered_float::OrderedFloat;
 
+#[derive(Debug, PartialEq)]
+pub(crate) enum TerrainGenerationWeightsError {
+    WeightsDoNotSumToOne,
+}
+
 #[derive(Debug)]
 pub(crate) struct TerrainGenerationWeights {
     weights_min_heap: BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>>,
 }
 
 impl TerrainGenerationWeights {
-    pub fn new(weights: &[(TerrainType, f32)]) -> Result<Self, String> {
+    pub fn new(weights: &[(TerrainType, f32)]) -> Result<Self, TerrainGenerationWeightsError> {
         let min_heap: BinaryHeap<Reverse<(TerrainType, OrderedFloat<f32>)>> =
             TerrainGenerationWeights::build_min_heap_with_given_weights(weights);
 
         let sum: f32 = TerrainGenerationWeights::get_min_heap_sum(&min_heap);
         if sum != 1.0 {
-            return Err("Given weights should add up to 1.0".to_owned());
+            return Err(TerrainGenerationWeightsError::WeightsDoNotSumToOne);
         }
 
         Ok(Self {
@@ -57,7 +62,7 @@ impl TerrainGenerationWeights {
 mod test {
     use lib_terrain::entities::terrain_type::TerrainType;
 
-    use super::TerrainGenerationWeights;
+    use super::{TerrainGenerationWeights, TerrainGenerationWeightsError};
 
     #[test]
     fn should_fail_when_given_weights_that_dont_add_up_to_100_percent() {
@@ -115,7 +120,7 @@ mod test {
 
         weight_inputs.into_iter().for_each(|weights| {
             assert_eq!(
-                Err("Given weights should add up to 1.0".to_owned()),
+                Err(TerrainGenerationWeightsError::WeightsDoNotSumToOne),
                 TerrainGenerationWeights::new(&weights).map(|_| ()),
                 "{:?}",
                 weights
