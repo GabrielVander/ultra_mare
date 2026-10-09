@@ -9,6 +9,7 @@ pub struct TilePosition {
 impl TilePosition {
     pub(crate) fn neighbour(self, direction: Direction) -> Option<TilePosition> {
         let TilePosition { x, y } = self;
+
         Some(match direction {
             Direction::North => TilePosition {
                 x,

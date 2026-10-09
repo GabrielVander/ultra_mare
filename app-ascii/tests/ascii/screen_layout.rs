@@ -42,6 +42,7 @@ fn should_lay_tiles_out_left_to_right_and_top_to_bottom() {
 #[test]
 fn should_aim_the_camera_so_the_viewport_origin_fills_the_top_left_corner() {
     let (window_width, window_height): (f32, f32) = (1000.0, 600.0);
+
     [MapPosition { x: 0, y: 0 }, MapPosition { x: 7, y: 3 }]
         .into_iter()
         .for_each(|origin| {

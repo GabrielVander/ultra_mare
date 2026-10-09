@@ -135,14 +135,17 @@ fn spawn_legend(mut commands: Commands) {
             legend.terrains.iter().for_each(|entry| {
                 spawn_legend_entry(panel, entry);
             });
+
             panel.spawn(legend_text("\nUnits", LEGEND_TEXT));
             legend.units.iter().for_each(|entry| {
                 spawn_legend_entry(panel, entry);
             });
+
             panel.spawn(legend_text("\nColonies", LEGEND_TEXT));
             legend.colonies.iter().for_each(|entry| {
                 spawn_legend_entry(panel, entry);
             });
+
             panel.spawn(legend_text("\nControls", LEGEND_TEXT));
             legend.controls.iter().for_each(|control| {
                 spawn_control_hint(panel, control);
@@ -191,6 +194,7 @@ fn spawn_world(mut commands: Commands) {
             .map(|(direction, _)| (*direction, new_key_repeat()))
             .collect(),
     });
+
     commands.insert_resource(UnitOrders {
         move_repeats: MOVE_KEYS
             .iter()
@@ -215,12 +219,14 @@ fn populate_world(commands: &mut Commands, world: WorldMap) {
         expedition: Expedition::land(&tiles),
         active: ActiveUnit::Colonist,
     });
+
     commands.insert_resource(Settlements(Colonies::default()));
     commands.insert_resource(World(world));
 }
 
 fn spawn_tiles(commands: &mut Commands, world: &WorldMap) {
     let view_model: MapViewModel = present_map(world);
+
     for (y, row) in (0..).zip(&view_model.rows) {
         for (x, glyph) in (0..).zip(row) {
             commands.spawn(tile_glyph(MapPosition { x, y }, *glyph));
@@ -230,6 +236,7 @@ fn spawn_tiles(commands: &mut Commands, world: &WorldMap) {
 
 fn tile_glyph(position: MapPosition, glyph: Glyph) -> impl Bundle {
     let (x, y): (f32, f32) = LAYOUT.tile_translation(position);
+
     (
         MapGlyph,
         Text2d::new(glyph.symbol.to_string()),
@@ -251,9 +258,11 @@ fn regenerate_world(
     if !keys.just_pressed(REGENERATE_KEY) {
         return;
     }
+
     glyphs
         .iter()
         .for_each(|glyph| commands.entity(glyph).despawn());
+
     populate_world(&mut commands, generate_world(rand::random()));
 }
 
@@ -262,6 +271,7 @@ fn fit_viewport_to_window(
     mut navigation: ResMut<Navigation>,
 ) {
     let (columns, rows): (u32, u32) = LAYOUT.viewport_size(window.width(), window.height());
+
     navigation.viewport.resize(columns, rows);
 }
 
@@ -279,12 +289,15 @@ fn move_unit(
     mut units: ResMut<Units>,
 ) {
     let terrain = WorldTerrain::new(&world.0);
+
     for ((direction, repeat), (_, key)) in orders.move_repeats.iter_mut().zip(MOVE_KEYS) {
         repeat.tick(is_held(&keys, key), time.delta());
+
         for _ in 0..repeat.steps_due() {
             // Touching the units only when a step is due keeps change detection meaningful for
             // following and drawing them.
             let Units { expedition, active } = units.as_mut();
+
             active.order_move(expedition, *direction, &terrain);
         }
     }
@@ -299,7 +312,9 @@ fn found_colony(
     if !keys.just_pressed(FOUND_COLONY_KEY) {
         return;
     }
+
     let Units { expedition, active } = units.as_mut();
+
     active.order_found_colony(expedition, &mut settlements.0, &WorldTerrain::new(&world.0));
 }
 
@@ -307,6 +322,7 @@ fn follow_active_unit(units: Res<Units>, mut navigation: ResMut<Navigation>) {
     if !units.is_changed() {
         return;
     }
+
     if let Some(position) = units.active.position(&units.expedition) {
         navigation.viewport.keep_in_view(map_position(position));
     }
@@ -324,6 +340,7 @@ fn pan_viewport(
 
     for ((direction, repeat), (_, key)) in pan_repeats.iter_mut().zip(PAN_KEYS) {
         repeat.tick(is_held(&keys, key), time.delta());
+
         (0..repeat.steps_due()).for_each(|_| viewport.pan(*direction));
     }
 }
@@ -341,9 +358,11 @@ fn draw_colonies(
     if !settlements.is_changed() {
         return;
     }
+
     glyphs
         .iter()
         .for_each(|glyph| commands.entity(glyph).despawn());
+
     present_colonies(&settlements.0)
         .into_iter()
         .for_each(|marker| {
@@ -354,6 +373,7 @@ fn draw_colonies(
 // Drawn between the terrain and the units, so a unit visiting the colony shows on top.
 fn colony_on_map(marker: ColonyMarker) -> impl Bundle {
     let (x, y): (f32, f32) = LAYOUT.tile_translation(marker.position);
+
     (
         ColonyGlyph,
         Sprite::from_color(
@@ -374,9 +394,11 @@ fn draw_units(mut commands: Commands, units: Res<Units>, glyphs: Query<Entity, W
     if !units.is_changed() {
         return;
     }
+
     glyphs
         .iter()
         .for_each(|glyph| commands.entity(glyph).despawn());
+
     present_units(&units.expedition, units.active)
         .into_iter()
         .for_each(|marker| {
@@ -386,11 +408,13 @@ fn draw_units(mut commands: Commands, units: Res<Units>, glyphs: Query<Entity, W
 
 fn unit_on_map(marker: UnitMarker) -> impl Bundle {
     let (x, y): (f32, f32) = LAYOUT.tile_translation(marker.position);
+
     let background: Color = if marker.is_active {
         ACTIVE_UNIT_BACKGROUND
     } else {
         IDLE_UNIT_BACKGROUND
     };
+
     (
         UnitGlyph,
         Sprite::from_color(background, Vec2::new(LAYOUT.tile_width, LAYOUT.tile_height)),
@@ -414,6 +438,7 @@ fn aim_camera(
         window.width(),
         window.height(),
     );
+
     camera.translation.x = x;
     camera.translation.y = y;
 }

@@ -58,6 +58,7 @@ impl TerrainGenerationWeights {
         weights: &[(TerrainType, f32)],
     ) -> Result<(), TerrainGenerationWeightsError> {
         let mut seen: HashSet<TerrainType> = HashSet::new();
+
         match weights.iter().find(|(terrain, _)| !seen.insert(*terrain)) {
             Some((terrain, _)) => Err(TerrainGenerationWeightsError::DuplicateTerrain(*terrain)),
             None => Ok(()),
@@ -84,9 +85,11 @@ impl TerrainGenerationWeights {
         weights: &[(TerrainType, f32)],
     ) -> Result<(), TerrainGenerationWeightsError> {
         let sum: f32 = weights.iter().map(|(_, weight)| weight).sum();
+
         if (sum - 1.0).abs() > WEIGHT_SUM_TOLERANCE {
             return Err(TerrainGenerationWeightsError::WeightsDoNotSumToOne);
         }
+
         Ok(())
     }
 
@@ -98,6 +101,7 @@ impl TerrainGenerationWeights {
             .filter(|(_, weight)| *weight > 0.0)
             .scan(0.0, |upper_bound, (terrain, weight)| {
                 *upper_bound += weight;
+
                 Some(TerrainBand {
                     terrain: *terrain,
                     upper_bound: *upper_bound,

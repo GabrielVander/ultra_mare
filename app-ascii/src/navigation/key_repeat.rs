@@ -39,6 +39,7 @@ impl KeyRepeat {
             (true, Some(held_for)) => {
                 let now_held_for: Duration = held_for + elapsed;
                 let repeats: u32 = self.repeats_after(now_held_for) - self.repeats_after(held_for);
+
                 (Some(now_held_for), repeats)
             }
         };
@@ -54,6 +55,7 @@ impl KeyRepeat {
             None => 0,
             Some(past_delay) => {
                 let repeats: u128 = past_delay.as_nanos() / self.interval.as_nanos();
+
                 u32::try_from(repeats).unwrap_or(u32::MAX).saturating_add(1)
             }
         }

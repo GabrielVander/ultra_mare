@@ -97,5 +97,6 @@ fn lies_toward(direction: Direction, from: &Unit, other: &Unit) -> bool {
 
 fn stepped(mut unit: Unit, direction: Direction, map: &impl MapTerrain) -> Unit {
     let _ = unit.move_toward(direction, map);
+
     unit
 }

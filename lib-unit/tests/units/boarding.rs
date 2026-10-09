@@ -10,6 +10,7 @@ fn should_take_aboard_a_colonist_embarking_from_the_next_tile() {
     let embarked: Result<(), (EmbarkError, Unit)> = colonist.embark(&mut caravel);
 
     assert!(embarked.is_ok());
+
     let aboard: Vec<UnitType> = caravel.units_aboard().map(Unit::unit_type).collect();
     assert_eq!(vec![UnitType::Colonist], aboard);
 }

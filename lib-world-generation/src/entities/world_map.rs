@@ -35,6 +35,7 @@ impl WorldMap {
         if !self.contains(position) {
             return None;
         }
+
         self.tiles
             .get(position.y as usize * self.size.width() as usize + position.x as usize)
     }

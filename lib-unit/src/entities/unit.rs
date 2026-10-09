@@ -25,6 +25,7 @@ impl Unit {
         let (position, _): (TilePosition, TerrainType) = tiles
             .into_iter()
             .find(|(_, terrain)| unit_type.can_enter(*terrain))?;
+
         Some(Self {
             unit_type,
             position,
@@ -47,10 +48,13 @@ impl Unit {
             .neighbour(direction)
             .ok_or(MoveError::OffMap)?;
         let terrain: TerrainType = map.terrain_at(destination).ok_or(MoveError::OffMap)?;
+
         if !self.unit_type.can_enter(terrain) {
             return Err(MoveError::Impassable(terrain));
         }
+
         self.relocate(destination);
+
         Ok(())
     }
 
@@ -66,6 +70,7 @@ impl Unit {
 
     pub(crate) fn relocate(&mut self, position: TilePosition) {
         self.position = position;
+
         self.aboard
             .iter_mut()
             .for_each(|unit| unit.relocate(position));

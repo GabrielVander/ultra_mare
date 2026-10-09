@@ -24,14 +24,18 @@ impl Colonies {
             .colonist_ashore()
             .map(Unit::position)
             .ok_or(FoundColonyError::NoColonistAshore)?;
+
         if self.is_crowded(site) {
             return Err(FoundColonyError::TooCloseToColony);
         }
+
         if !is_coastal(site, map) {
             return Err(FoundColonyError::Landlocked);
         }
+
         self.colonies
             .extend(expedition.settle_colonist().map(Colony::founded_by));
+
         Ok(site)
     }
 
@@ -42,6 +46,7 @@ impl Colonies {
     fn is_crowded(&self, site: TilePosition) -> bool {
         self.colonies.iter().any(|colony| {
             let position: TilePosition = colony.position();
+
             position.x.abs_diff(site.x) <= 1 && position.y.abs_diff(site.y) <= 1
         })
     }

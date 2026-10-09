@@ -16,6 +16,7 @@ pub struct UnitMarker {
 #[must_use]
 pub fn present_units(expedition: &Expedition, active: ActiveUnit) -> Vec<UnitMarker> {
     let active_position: Option<TilePosition> = active.position(expedition);
+
     expedition
         .units_on_map()
         .map(|unit| unit_marker(unit, active_position == Some(unit.position())))

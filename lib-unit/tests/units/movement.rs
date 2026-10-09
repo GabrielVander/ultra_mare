@@ -48,6 +48,7 @@ fn should_not_walk_into_the_sea() {
 #[test]
 fn should_not_walk_off_the_far_edges_of_the_map() {
     let bottom_right = TilePosition { x: 2, y: 2 };
+
     [Direction::East, Direction::South]
         .into_iter()
         .for_each(|direction| {
@@ -63,6 +64,7 @@ fn should_not_walk_off_the_far_edges_of_the_map() {
 #[test]
 fn should_not_walk_off_the_near_edges_of_the_map() {
     let top_left = TilePosition { x: 0, y: 0 };
+
     [Direction::North, Direction::West]
         .into_iter()
         .for_each(|direction| {
@@ -81,6 +83,7 @@ fn should_not_walk_past_the_last_representable_tile() {
         x: u32::MAX,
         y: u32::MAX,
     };
+
     [Direction::East, Direction::South]
         .into_iter()
         .for_each(|direction| {

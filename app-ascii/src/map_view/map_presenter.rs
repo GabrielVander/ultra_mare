@@ -11,6 +11,7 @@ pub struct MapViewModel {
 #[must_use]
 pub fn present_map(map: &WorldMap) -> MapViewModel {
     let size: MapSize = map.size();
+
     let rows: Vec<Vec<Glyph>> = (0..size.height())
         .map(|y| {
             (0..size.width())

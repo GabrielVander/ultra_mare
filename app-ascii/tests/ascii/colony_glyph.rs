@@ -7,10 +7,12 @@ fn should_show_a_colony_as_a_hash_unlike_any_terrain_or_unit() {
     let glyph: Glyph = colony_glyph();
 
     assert_eq!('#', glyph.symbol);
+
     TerrainType::ALL.into_iter().for_each(|terrain| {
         assert_ne!(glyph_for(terrain).symbol, glyph.symbol, "{terrain:?}");
         assert_ne!(glyph_for(terrain).color, glyph.color, "{terrain:?}");
     });
+
     [UnitType::Colonist, UnitType::Caravel]
         .into_iter()
         .for_each(|unit_type| {

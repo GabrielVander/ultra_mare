@@ -37,6 +37,7 @@ fn should_change_gradually_between_neighbouring_tiles() {
     (0..32).for_each(|y| {
         (0..32).for_each(|x| {
             let here: f32 = value_at(x, y);
+
             [value_at(x + 1, y), value_at(x, y + 1)]
                 .into_iter()
                 .for_each(|neighbour| {

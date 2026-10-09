@@ -36,6 +36,7 @@ impl Viewport {
 
     pub fn pan(&mut self, direction: PanDirection) {
         let MapPosition { x, y } = self.origin;
+
         let panned: MapPosition = match direction {
             PanDirection::Left => MapPosition {
                 x: x.saturating_sub(1),
@@ -54,6 +55,7 @@ impl Viewport {
                 y: y.saturating_add(1),
             },
         };
+
         self.origin = self.clamped(panned);
     }
 
@@ -63,6 +65,7 @@ impl Viewport {
             x: Self::nearest_showing(self.origin.x, position.x, self.columns),
             y: Self::nearest_showing(self.origin.y, position.y, self.rows),
         };
+
         self.origin = self.clamped(showing);
     }
 
@@ -74,6 +77,7 @@ impl Viewport {
 
     fn clamped(&self, origin: MapPosition) -> MapPosition {
         let farthest: MapPosition = self.farthest_origin();
+
         MapPosition {
             x: origin.x.min(farthest.x),
             y: origin.y.min(farthest.y),
@@ -89,6 +93,7 @@ impl Viewport {
 
     fn nearest_showing(origin: u32, coordinate: u32, span: u32) -> u32 {
         let first_showing: u32 = coordinate.saturating_sub(span.saturating_sub(1));
+
         origin.clamp(first_showing, coordinate)
     }
 }

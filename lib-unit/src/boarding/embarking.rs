@@ -13,8 +13,10 @@ impl Unit {
         if let Some(reason) = self.embark_refusal(carrier) {
             return Err((reason, self));
         }
+
         self.relocate(carrier.position());
         carrier.aboard.push(self);
+
         Ok(())
     }
 

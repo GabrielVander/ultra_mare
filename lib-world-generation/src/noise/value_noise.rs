@@ -25,6 +25,7 @@ impl NoiseSource for ValueNoise {
     fn noise_at(&self, position: MapPosition) -> NoiseValue {
         // Blending stays between the blended values, but float rounding may step a hair past them.
         let value: f32 = self.blended_value(position).clamp(0.0, 1.0);
+
         NoiseValue::new(value).expect("a clamped value is within the noise range")
     }
 }
@@ -45,11 +46,13 @@ impl ValueNoise {
             self.lattice_value(cell_x.wrapping_add(1), cell_y),
             along_x,
         );
+
         let bottom: f32 = lerp(
             self.lattice_value(cell_x, cell_y.wrapping_add(1)),
             self.lattice_value(cell_x.wrapping_add(1), cell_y.wrapping_add(1)),
             along_x,
         );
+
         lerp(top, bottom, along_y)
     }
 
@@ -70,8 +73,10 @@ fn lerp(from: f32, to: f32, t: f32) -> f32 {
 // SplitMix64's finalizer: cheap, and good enough to scatter neighbouring inputs.
 fn mix(value: u64) -> u64 {
     let mut z: u64 = value.wrapping_add(0x9E37_79B9_7F4A_7C15);
+
     z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
     z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+
     z ^ (z >> 31)
 }
 

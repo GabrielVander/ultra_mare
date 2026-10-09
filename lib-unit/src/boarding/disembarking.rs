@@ -20,9 +20,12 @@ impl Unit {
             .first()
             .cloned()
             .ok_or(DisembarkError::NobodyAboard)?;
+
         unit.move_toward(direction, map)
             .map_err(DisembarkError::Blocked)?;
+
         self.aboard.remove(0);
+
         Ok(unit)
     }
 }

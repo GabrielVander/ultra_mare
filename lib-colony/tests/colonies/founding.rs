@@ -14,8 +14,10 @@ fn should_found_a_colony_where_the_colonist_stands() {
     let founded: Result<TilePosition, FoundColonyError> = colonies.found(&mut expedition, &SHORE);
 
     assert_eq!(Ok(TilePosition { x: 0, y: 0 }), founded);
+
     let sites: Vec<TilePosition> = colonies.iter().map(Colony::position).collect();
     assert_eq!(vec![TilePosition { x: 0, y: 0 }], sites);
+
     let on_map: Vec<UnitType> = expedition.units_on_map().map(Unit::unit_type).collect();
     assert_eq!(vec![UnitType::Caravel], on_map);
 }

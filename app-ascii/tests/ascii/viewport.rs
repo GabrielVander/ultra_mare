@@ -30,6 +30,7 @@ fn should_pan_one_tile_in_the_given_direction() {
 fn should_not_pan_past_the_edges_of_the_map() {
     let top_left = MapPosition { x: 0, y: 0 };
     let bottom_right = MapPosition { x: 15, y: 6 };
+
     [
         (top_left, PanDirection::Left),
         (top_left, PanDirection::Up),
@@ -79,6 +80,7 @@ fn should_pan_within_its_new_size_after_a_resize() {
 #[test]
 fn should_stay_put_when_keeping_an_already_visible_position_in_view() {
     let origin = MapPosition { x: 3, y: 2 };
+
     [
         MapPosition { x: 3, y: 2 },
         MapPosition { x: 7, y: 5 },
@@ -139,8 +141,10 @@ fn should_not_pan_past_the_edges_of_the_map_to_keep_a_position_in_view() {
 
 fn viewport_at(origin: MapPosition) -> Viewport {
     let mut viewport = Viewport::new(map_size(20, 10), 5, 4);
+
     (0..origin.x).for_each(|_| viewport.pan(PanDirection::Right));
     (0..origin.y).for_each(|_| viewport.pan(PanDirection::Down));
+
     viewport
 }
 

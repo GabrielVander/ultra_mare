@@ -42,6 +42,7 @@ fn should_repeat_once_per_interval_after_the_initial_delay() {
         .into_iter()
         .map(|elapsed| {
             repeat.tick(true, millis(elapsed));
+
             repeat.steps_due()
         })
         .collect();

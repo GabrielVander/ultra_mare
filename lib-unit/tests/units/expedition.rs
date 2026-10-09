@@ -113,6 +113,7 @@ fn should_settle_the_colonist_ashore_off_the_map() {
 
     assert_eq!(UnitType::Colonist, settler.unit_type());
     assert_eq!(TilePosition { x: 0, y: 0 }, settler.position());
+
     let on_map: Vec<UnitType> = expedition.units_on_map().map(Unit::unit_type).collect();
     assert_eq!(vec![UnitType::Caravel], on_map);
 }

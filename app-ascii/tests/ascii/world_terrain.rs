@@ -58,6 +58,7 @@ fn land_on_top_row(width: u32, height: u32) -> WorldMap {
     let weights =
         TerrainGenerationWeights::new(&[(TerrainType::Sea, 0.5), (TerrainType::Plains, 0.5)])
             .unwrap();
+
     WorldMap::generate(
         MapSize::new(width, height).unwrap(),
         &weights,
