@@ -45,13 +45,14 @@ fn should_locate_the_active_unit() {
 #[test]
 fn should_found_a_colony_with_the_active_colonist_and_hand_over_to_the_caravel() {
     let mut expedition = Expedition::land(&Shore.tiles());
+    expedition.move_colonist(Direction::East, &Shore);
     let mut colonies = Colonies::default();
     let mut active = ActiveUnit::Colonist;
 
     active.order_found_colony(&mut expedition, &mut colonies);
 
     let sites: Vec<TilePosition> = colonies.iter().map(|colony| colony.position()).collect();
-    assert_eq!(vec![TilePosition { x: 0, y: 0 }], sites);
+    assert_eq!(vec![TilePosition { x: 1, y: 0 }], sites);
     assert_eq!(ActiveUnit::Caravel, active);
 }
 

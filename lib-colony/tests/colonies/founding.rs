@@ -3,7 +3,7 @@ use lib_unit::{Direction, Expedition, TilePosition, UnitType};
 
 use crate::support::{TerrainGrid, colonist_at};
 
-const SHORE: TerrainGrid = TerrainGrid(&["..~"]);
+const SHORE: TerrainGrid = TerrainGrid(&[".~"]);
 
 #[test]
 fn should_found_a_colony_where_the_colonist_stands() {
