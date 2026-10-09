@@ -55,6 +55,7 @@ fn should_list_the_controls() {
         vec![
             ("WASD", "Move unit"),
             ("Tab", "Switch unit"),
+            ("B", "Build colony"),
             ("Arrows", "Pan view"),
             ("R", "New map"),
         ],

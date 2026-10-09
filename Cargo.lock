@@ -177,6 +177,7 @@ name = "app-ascii"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "lib-colony",
  "lib-terrain",
  "lib-unit",
  "lib-world-generation",

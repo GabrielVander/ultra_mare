@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 bevy = "0.18.1"
+lib-colony = { path = "../lib-colony" }
 lib-terrain = { path = "../lib-terrain" }
 lib-unit = { path = "../lib-unit" }
 lib-world-generation = { path = "../lib-world-generation" }

@@ -1,3 +1,4 @@
+use lib_colony::Colonies;
 use lib_unit::{Direction, Expedition, MapTerrain, TilePosition};
 
 /// The unit the player's orders go to.
@@ -24,6 +25,14 @@ impl ActiveUnit {
         match self {
             ActiveUnit::Colonist => expedition.move_colonist(direction, map),
             ActiveUnit::Caravel => expedition.move_caravel(direction, map),
+        }
+    }
+
+    /// Has the colonist found a colony where it stands. It joins the colony, so the caravel
+    /// takes the orders from then on.
+    pub fn order_found_colony(&mut self, expedition: &mut Expedition, colonies: &mut Colonies) {
+        if *self == ActiveUnit::Colonist && colonies.found(expedition).is_ok() {
+            *self = ActiveUnit::Caravel;
         }
     }
 

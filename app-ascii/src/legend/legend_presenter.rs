@@ -35,6 +35,7 @@ pub fn present_legend() -> LegendViewModel {
         controls: vec![
             control_hint("WASD", "Move unit"),
             control_hint("Tab", "Switch unit"),
+            control_hint("B", "Build colony"),
             control_hint("Arrows", "Pan view"),
             control_hint("R", "New map"),
         ],

@@ -6,6 +6,7 @@ use app_ascii::{
     present_units,
 };
 use bevy::{prelude::*, window::PrimaryWindow};
+use lib_colony::Colonies;
 use lib_unit::{Direction, Expedition};
 use lib_world_generation::{MapPosition, WorldMap};
 
@@ -36,6 +37,7 @@ const MOVE_KEYS: [(Direction, KeyCode); 4] = [
     (Direction::East, KeyCode::KeyD),
 ];
 const SWITCH_UNIT_KEY: KeyCode = KeyCode::Tab;
+const FOUND_COLONY_KEY: KeyCode = KeyCode::KeyB;
 const REGENERATE_KEY: KeyCode = KeyCode::KeyR;
 
 fn main() {
@@ -55,6 +57,7 @@ fn main() {
                 fit_viewport_to_window,
                 switch_unit,
                 move_unit,
+                found_colony,
                 follow_active_unit,
                 pan_viewport,
                 draw_units,
@@ -79,6 +82,9 @@ struct Units {
     expedition: Expedition,
     active: ActiveUnit,
 }
+
+#[derive(Resource)]
+struct Settlements(Colonies);
 
 #[derive(Resource)]
 struct UnitOrders {
@@ -190,6 +196,7 @@ fn populate_world(commands: &mut Commands, world: WorldMap) {
         expedition: Expedition::land(&tiles),
         active: ActiveUnit::Colonist,
     });
+    commands.insert_resource(Settlements(Colonies::default()));
     commands.insert_resource(World(world));
 }
 
@@ -262,6 +269,18 @@ fn move_unit(
             active.order_move(expedition, *direction, &terrain);
         }
     }
+}
+
+fn found_colony(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut units: ResMut<Units>,
+    mut settlements: ResMut<Settlements>,
+) {
+    if !keys.just_pressed(FOUND_COLONY_KEY) {
+        return;
+    }
+    let Units { expedition, active } = units.as_mut();
+    active.order_found_colony(expedition, &mut settlements.0);
 }
 
 fn follow_active_unit(units: Res<Units>, mut navigation: ResMut<Navigation>) {
